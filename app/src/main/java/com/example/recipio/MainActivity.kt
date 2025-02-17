@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getString
+import com.example.recipio.data.Recipe
 import com.example.recipio.ui.theme.RecipioTheme
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
@@ -26,29 +27,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             RecipioTheme {
-
-                Log.i(getString(R.string.app_name), "Log test")
-
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column {
-                        Greeting(
-                            name = getString(R.string.app_name),
-                            modifier = Modifier.padding(innerPadding)
-                        )
-                        Button(
-                            onClick = {seedDatabase()},
-
-                            ) {
-                            Text("Seed database")
-                        }
-                        Button(
-                            onClick = {logUsers()},
-
-                            ) {
-                            Text("Log users")
-                        }
-                    }
-                }
+                RecipeApp()
             }
         }
     }
@@ -96,21 +75,5 @@ class MainActivity : ComponentActivity() {
             .addOnFailureListener { e ->
                 Log.w(ContextCompat.getString(this@MainActivity.baseContext,R.string.app_name), "Error adding document", e)
             }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    RecipioTheme {
-        Greeting("Android")
     }
 }
