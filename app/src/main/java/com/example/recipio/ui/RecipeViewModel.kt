@@ -20,7 +20,7 @@ import kotlinx.coroutines.tasks.await
 class RecipeViewModel() : ViewModel(){
     private val _uiState = MutableStateFlow(RecipeUiState())
     val uiState: StateFlow<RecipeUiState> = _uiState
-    private var recipes : MutableSet<Recipe> = mutableSetOf()
+    private var recipes : List<Recipe> = emptyList()
 
     suspend fun fetchRecipes(): List<Recipe> {
         val db = Firebase.firestore
@@ -38,12 +38,19 @@ class RecipeViewModel() : ViewModel(){
         }
     }
 
+    fun filterRecipes(filter : String){
+        val filteredList = recipes.filter { it.name.startsWith(filter) }
+        _uiState.update { currentState ->
+            currentState.copy(filteredRecipes = filteredList)
+        }
+    }
 
     fun getRecipes() {
         viewModelScope.launch {
-            val recipes = fetchRecipes()
+            recipes  = fetchRecipes()
+
             _uiState.update { currentState ->
-                currentState.copy(recipes = recipes)
+                currentState.copy(recipes = recipes, filteredRecipes = recipes)
             }
         }
     }
