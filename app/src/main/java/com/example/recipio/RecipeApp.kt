@@ -2,8 +2,6 @@ package com.example.recipio
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
@@ -25,7 +23,7 @@ import com.example.recipio.ui.SearchScreen
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
-enum class RecipeScreen(@StringRes val title: Int){
+enum class RecipeApp(@StringRes val title: Int){
     Start(title = R.string.app_name),
     Search(title=R.string.search),
     Home(title=R.string.home)
@@ -41,14 +39,14 @@ fun RecipeApp(
         bottomBar = {
             BottomAppBar {
                 Button(
-                    onClick = {navController.navigate(RecipeScreen.Home.name)}
+                    onClick = {navController.navigate(RecipeApp.Home.name)}
                 ) {
                     Text(stringResource(R.string.home))
                 }
                 Button(
                     onClick = {
                         viewModel.getRecipes()
-                        navController.navigate(RecipeScreen.Search.name)
+                        navController.navigate(RecipeApp.Search.name)
                     }
                 ) {
                     Text(stringResource(R.string.search))
@@ -63,13 +61,13 @@ fun RecipeApp(
         ) {
             NavHost(
                 navController = navController,
-                startDestination = RecipeScreen.Home.name,
+                startDestination = RecipeApp.Home.name,
                 modifier = Modifier.padding(innerPadding)
             ) {
-                composable(route = RecipeScreen.Home.name) {
+                composable(route = RecipeApp.Home.name) {
                     HomeScreen()
                 }
-                composable(route = RecipeScreen.Search.name) {
+                composable(route = RecipeApp.Search.name) {
                     SearchScreen(recipes = uiState.recipes)
                 }
             }

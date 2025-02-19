@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat.getString
 import com.example.recipio.R
-import com.example.recipio.RecipeScreen
+import com.example.recipio.RecipeApp
 
 @Composable
 fun HomeScreen(

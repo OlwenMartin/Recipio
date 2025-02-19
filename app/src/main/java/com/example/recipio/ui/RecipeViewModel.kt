@@ -6,6 +6,7 @@ import androidx.core.content.ContextCompat.getString
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipio.R
+import com.example.recipio.data.Ingredient
 import com.example.recipio.data.Recipe
 import com.example.recipio.data.RecipeUiState
 import com.google.firebase.Firebase
@@ -29,7 +30,15 @@ class RecipeViewModel() : ViewModel(){
             result.documents.map { document ->
                 Recipe(
                     name = document.getString("name") ?: "",
-                    description = document.getString("description") ?: ""
+                    description = document.getString("description") ?: "",
+                    tags = listOf("Vegan", "Vegetarian"),
+                    steps = listOf("etape 1","etape 2"),
+                    ingredients = listOf(Ingredient("ing1",30,"g")),
+                    numberOfPeople = 4,
+                    time = 30,
+                    notes = "Notes supplémentaires",
+                    image = "null",
+                    isFavorite = false
                 )
             }
         } catch (exception: Exception) {
