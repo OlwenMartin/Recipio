@@ -1,16 +1,19 @@
 package com.example.recipio.data
 
 import android.media.Image
+import com.example.recipio.R
 
 data class Recipe(
-    val image : String = "Image",
-    val isFavorite : Boolean = false,
-    val name : String = "Nom",
-    val description : String = "Description",
-    val tags : List<String> = listOf(),
-    val steps : List<String> = listOf(),
-    val ingredients : List<Ingredient> = listOf(),
-    val numberOfPeople : Int = 4,
-    val time : Int = 0,
-    val notes : String = "Notes supplémentaires"
+    var image : Int = R.drawable.exemple_image,
+    var isFavorite : Boolean = false,
+    var name : String = "Nom",
+    var description : String = "Description",
+    var tags : List<String> = listOf("Vegan", "Vegetarian"),
+    var steps : List<String> = listOf("etape 1","etape 2"),
+    var ingredients : List<Ingredient> = listOf(Ingredient("ing1",30,"g"),
+        Ingredient("ing2",30,"g")
+    ),
+    var numberOfPeople : Int = 4,
+    var time : Int = 0,
+    var notes : String = "Notes supplémentaires"
 )

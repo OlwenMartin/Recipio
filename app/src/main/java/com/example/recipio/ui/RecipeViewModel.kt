@@ -37,7 +37,7 @@ class RecipeViewModel() : ViewModel(){
                     numberOfPeople = 4,
                     time = 30,
                     notes = "Notes supplémentaires",
-                    image = "null",
+                    image = R.drawable.exemple_image,
                     isFavorite = false
                 )
             }
