@@ -14,10 +14,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -45,14 +47,15 @@ import com.example.recipio.data.Recipe
 @Composable
 fun RecipeScreen(
     recipe: Recipe,
-    modifier: Modifier
-){
+    onRecipeChange: (Recipe) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        //Header
+        // Header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -60,14 +63,7 @@ fun RecipeScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Nom de l'application avec icône
             Row(verticalAlignment = Alignment.CenterVertically) {
-//                Icon(
-//                    painter = painterResource(id = Logo app),
-//                    contentDescription = "App Icon",
-//                    tint = Color(0xFF88B04B), // Vert clair
-//                    modifier = Modifier.size(32.dp)
-//                )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "name",
@@ -77,18 +73,23 @@ fun RecipeScreen(
                 )
             }
 
-            // Icônes à droite (Modifier et Favori)
+            // Icônes Modifier et Favori
             Row {
                 IconButton(onClick = { /* Action modifier */ }) {
                     Icon(Icons.Default.Create, contentDescription = "Modify")
                 }
-                IconButton(onClick = { /* Action favori */ }) {
-                    Icon(Icons.Default.FavoriteBorder, contentDescription = "Modify") // *****A ajouter une condition pour si favorit ou pas
+                IconButton(onClick = {
+                    onRecipeChange(recipe.copy(isFavorite = !recipe.isFavorite))
+                }) {
+                    Icon(
+                        imageVector = if (recipe.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = "Favori"
+                    )
                 }
             }
         }
 
-        // Image centrale
+        // Image (statique, hors scroll)
         Box(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
@@ -103,97 +104,114 @@ fun RecipeScreen(
             )
         }
 
-        // Nom
-        OutlinedTextField(
-            value = recipe.name,
-            onValueChange = { recipe.name = it },
-            label = { Text("Nom") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        // Partie scrollable
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 8.dp)
+        ) {
+            item {
+                // Nom
+                OutlinedTextField(
+                    value = recipe.name,
+                    onValueChange = { onRecipeChange(recipe.copy(name = it)) },
+                    label = { Text("Nom") },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-        Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-        // Description
-        OutlinedTextField(
-            value = recipe.description,
-            onValueChange = { recipe.description = it },
-            label = { Text("Description") },
-            modifier = Modifier.fillMaxWidth()
-        )
+                // Description
+                OutlinedTextField(
+                    value = recipe.description,
+                    onValueChange = { onRecipeChange(recipe.copy(description = it)) },
+                    label = { Text("Description") },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-        Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-        // Tags
-        Column {
-            Text("Tags:")
-            Row {
-                recipe.tags.forEach { tag ->
-                    Chip(text = tag)
+                // Tags
+                Column {
+                    Text("Tags:")
+                    Row {
+                        recipe.tags.forEach { tag -> Chip(text = tag) }
+                    }
                 }
-            }
-        }
 
-        Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-        // Number of people
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Pour : ")
-            IconButton(onClick = { if (recipe.numberOfPeople > 1) recipe.numberOfPeople-- }) {
-                Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Diminuer")
-            }
-            Text(text = recipe.numberOfPeople.toString())
-            IconButton(onClick = { recipe.numberOfPeople++ }) {
-                Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Augmenter")
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Ingrédients
-        Column {
-            Text("Ingrédients:")
-            recipe.ingredients.forEachIndexed { index, ing ->
+                // Nombre de personnes
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedTextField(
-                        value = ing.name + " " + ing.amount + " " + ing.unit,
-                        onValueChange = { recipe.ingredients = recipe.ingredients.toMutableList() },
-                        modifier = Modifier
-                            .padding(4.dp)
-                            .weight(1f)
-                    )
+                    Text("Pour : ")
+                    IconButton(onClick = {
+                        if (recipe.numberOfPeople > 1) onRecipeChange(recipe.copy(numberOfPeople = recipe.numberOfPeople - 1))
+                    }) {
+                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Diminuer")
+                    }
+                    Text(text = recipe.numberOfPeople.toString())
+                    IconButton(onClick = {
+                        onRecipeChange(recipe.copy(numberOfPeople = recipe.numberOfPeople + 1))
+                    }) {
+                        Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Augmenter")
+                    }
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Ingrédients
+                Column {
+                    Text("Ingrédients:")
+                    recipe.ingredients.forEachIndexed { index, ing ->
+                        OutlinedTextField(
+                            value = "${ing.name} ${ing.amount} ${ing.unit}",
+                            onValueChange = { newValue ->
+                                val updatedIngredients = recipe.ingredients.toMutableList()
+                                updatedIngredients[index] = ing.copy(name = newValue)
+                                onRecipeChange(recipe.copy(ingredients = updatedIngredients))
+                            },
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .fillMaxWidth()
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Étapes
+                Column {
+                    Text("Étapes:")
+                    recipe.steps.forEachIndexed { index, step ->
+                        OutlinedTextField(
+                            value = step,
+                            onValueChange = { newValue ->
+                                val updatedSteps = recipe.steps.toMutableList().apply { set(index, newValue) }
+                                onRecipeChange(recipe.copy(steps = updatedSteps))
+                            },
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .fillMaxWidth()
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Notes supplémentaires
+                OutlinedTextField(
+                    value = recipe.notes,
+                    onValueChange = { onRecipeChange(recipe.copy(notes = it)) },
+                    label = { Text("Notes supplémentaires") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Étapes
-        Column {
-            Text("Étapes:")
-            recipe.steps.forEachIndexed { index, step ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedTextField(
-                        value = step,
-                        onValueChange = { recipe.steps = recipe.steps.toMutableList().apply { set(index, it) } },
-                        modifier = Modifier
-                            .padding(4.dp)
-                            .weight(1f)
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Notes supplémentaires
-        OutlinedTextField(
-            value = recipe.notes,
-            onValueChange = { recipe.notes = it },
-            label = { Text("Notes supplémentaires") },
-            modifier = Modifier.fillMaxWidth()
-        )
     }
 }
+
 
 @Composable
 fun Chip(text: String) {
@@ -212,7 +230,7 @@ fun Chip(text: String) {
 @Composable
 fun RecipeScreenPreview(){
     val recipe = Recipe(R.drawable.exemple_image,
-        false,
+        true,
         "Muffin",
         "c'est des muffins quoi",
         listOf("tag1","tag2"),
@@ -221,5 +239,5 @@ fun RecipeScreenPreview(){
         4,
         30,
         "notes en plus")
-    RecipeScreen(recipe,modifier = Modifier)
+    RecipeScreen(recipe, onRecipeChange = {}, modifier = Modifier)
 }

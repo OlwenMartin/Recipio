@@ -79,7 +79,7 @@ fun RecipeApp(
                     SearchScreen(recipes = uiState.recipes)
                 }
                 composable(route = RecipeApp.Recipe.name) {
-                    RecipeScreen(recipe = uiState.selectedRecipe,modifier=Modifier
+                    RecipeScreen(recipe = uiState.selectedRecipe,onRecipeChange = {},modifier=Modifier
                         .padding(top = 25.dp, start = 5.dp)
                         .fillMaxWidth())
                 }
