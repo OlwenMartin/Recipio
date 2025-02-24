@@ -75,7 +75,7 @@ fun RecipeApp(
                     HomeScreen()
                 }
                 composable(route = RecipeApp.Search.name) {
-                    SearchScreen(recipes = uiState.recipes)
+                    SearchScreen(recipes = uiState.filteredRecipes, onValueChanged = {filter -> viewModel.filterRecipes(filter)})
                 }
                 composable(route = RecipeApp.Recipe.name) {
                     RecipeScreen(recipe = uiState.selectedRecipe,onRecipeChange = {},modifier=Modifier
