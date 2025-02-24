@@ -58,7 +58,6 @@ fun RecipeApp(
                 ) {
                     Text(stringResource(R.string.recipe))
                 }
-
             }
         }
     ) { innerPadding ->
