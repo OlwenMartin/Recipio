@@ -13,14 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Icon
@@ -36,7 +33,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,7 +41,7 @@ import com.example.recipio.data.Ingredient
 import com.example.recipio.data.Recipe
 
 @Composable
-fun RecipeScreen(
+fun ModifyScreen(
     recipe: Recipe,
     onRecipeChange: (Recipe) -> Unit,
     modifier: Modifier = Modifier
@@ -63,46 +59,35 @@ fun RecipeScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "name",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF88B04B) // Vert clair
-                )
-            }
-
-            // Icônes Modifier et Favori
-            Row {
-                IconButton(onClick = { /* lien vers ModifyScreen */ }) {
-                    Icon(Icons.Default.Create, contentDescription = "Modify")
-                }
-                IconButton(onClick = {
-                    onRecipeChange(recipe.copy(isFavorite = !recipe.isFavorite))
-                }) {
-                    Icon(
-                        imageVector = if (recipe.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = "Favori"
-                    )
-                }
+            Text(
+                text = "Modifier la recette",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF88B04B)
+            )
+            IconButton(onClick = { /* Action sauvegarde */ }) {
+                Icon(Icons.Default.Check, contentDescription = "Sauvegarder")
             }
         }
 
-        // Image (statique, hors scroll)
+        // Image modifiable
         Box(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { /* TODO: Ajouter un sélecteur d'image */ },
             contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(id = recipe.image),
                 contentDescription = "Dish Image",
                 modifier = Modifier
-                    .size(120.dp)
+                    .size(140.dp)
                     .clip(RoundedCornerShape(12.dp)),
                 contentScale = ContentScale.Crop
             )
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Partie scrollable
         LazyColumn(
@@ -135,7 +120,7 @@ fun RecipeScreen(
                 Column {
                     Text("Tags:")
                     Row {
-                        recipe.tags.forEach { tag -> Chip(text = tag) }
+                        recipe.tags.forEach { tag -> Chip(text = tag, onRemove = { /* TODO: Supprimer le tag */ }) }
                     }
                 }
 
@@ -212,24 +197,26 @@ fun RecipeScreen(
     }
 }
 
-
 @Composable
-fun Chip(text: String) {
+fun Chip(text: String, onRemove: () -> Unit) {
     Row(
         modifier = Modifier
             .background(Color.LightGray, shape = RoundedCornerShape(12.dp))
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable { onRemove() },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text, modifier = Modifier.padding(end = 4.dp))
+        Icon(Icons.Default.Close, contentDescription = "Supprimer", Modifier.size(16.dp))
     }
 }
 
 @PreviewScreenSizes
 @Preview
 @Composable
-fun RecipeScreenPreview(){
-    val recipe = Recipe(R.drawable.exemple_image,
+fun ModifyScreenPreview(){
+    val recipe = Recipe(
+        R.drawable.exemple_image,
         true,
         "Muffin",
         "c'est des muffins quoi",
@@ -239,5 +226,5 @@ fun RecipeScreenPreview(){
         4,
         30,
         "notes en plus")
-    RecipeScreen(recipe, onRecipeChange = {}, modifier = Modifier)
+    ModifyScreen(recipe, onRecipeChange = {}, modifier = Modifier)
 }
