@@ -22,11 +22,13 @@ import com.example.recipio.ui.RecipeViewModel
 import com.example.recipio.ui.SearchScreen
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.recipio.ui.RecipeScreen
 
 enum class RecipeApp(@StringRes val title: Int){
     Start(title = R.string.app_name),
     Search(title=R.string.search),
-    Home(title=R.string.home)
+    Home(title=R.string.home),
+    Recipe(title=R.string.recipe)
 }
 
 @Composable
@@ -51,6 +53,11 @@ fun RecipeApp(
                 ) {
                     Text(stringResource(R.string.search))
                 }
+                Button(
+                    onClick = {navController.navigate(RecipeApp.Recipe.name)}
+                ) {
+                    Text(stringResource(R.string.recipe))
+                }
             }
         }
     ) { innerPadding ->
@@ -68,7 +75,12 @@ fun RecipeApp(
                     HomeScreen()
                 }
                 composable(route = RecipeApp.Search.name) {
-                    SearchScreen(recipes = uiState.filteredRecipes, onValueChanged = {filter -> viewModel.filterRecipes(filter)})
+                    SearchScreen(recipes = uiState.recipes)
+                }
+                composable(route = RecipeApp.Recipe.name) {
+                    RecipeScreen(recipe = uiState.selectedRecipe,onRecipeChange = {},modifier=Modifier
+                        .padding(top = 25.dp, start = 5.dp)
+                        .fillMaxWidth())
                 }
             }
     }
