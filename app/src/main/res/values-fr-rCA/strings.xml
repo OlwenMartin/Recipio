@@ -3,4 +3,6 @@
     <string name="app_name">Recipio</string>
     <string name="search">Recherche</string>
     <string name="home">Accueil</string>
+    <string name="search_text">Rechercher...</string>
+    <string name="recipe">Recette</string>
 </resources>
