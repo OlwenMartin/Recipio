@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun seedDatabase(){
-        val recipe : Recipe = Recipe("Recette 1", "Description de la recette 1")
+        val recipe : Recipe = Recipe()
         val db = Firebase.firestore
 
         db.collection("recipes")
