@@ -95,7 +95,12 @@ fun RecipeScreen(
             contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(id = recipe.image),
+                if(recipe.image != 0) {
+                    painterResource(id = recipe.image)
+
+                } else {
+                    painterResource(id = R.drawable.default_dish_image)
+                },
                 contentDescription = "Dish Image",
                 modifier = Modifier
                     .size(120.dp)
@@ -137,6 +142,20 @@ fun RecipeScreen(
                     Row {
                         recipe.tags.forEach { tag -> Chip(text = tag) }
                     }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                //Time
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Temps : ")
+                    OutlinedTextField(
+                        value = recipe.time.toString(),
+                        onValueChange = { onRecipeChange(recipe.copy(description = it)) },
+                        label = { Text("Time in minutes") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Text("min")
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
