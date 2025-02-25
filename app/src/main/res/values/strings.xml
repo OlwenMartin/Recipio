@@ -2,6 +2,8 @@
     <string name="app_name">Recipio</string>
     <string name="search">Search</string>
     <string name="home">Home</string>
+    <string name="add" translatable="false">Add</string>
+    <string name="modify" translatable="false">Modify</string>
     <string name="search_text">Search...</string>
     <string name="recipe">Recipe</string>
 </resources>

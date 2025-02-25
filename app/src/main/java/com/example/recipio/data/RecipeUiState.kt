@@ -1,7 +1,7 @@
 package com.example.recipio.data
 
 data class RecipeUiState (
-    val recipes : List<Recipe> = emptyList(),
-    var selectedRecipe : Recipe = Recipe(),
-    val filteredRecipes : List<Recipe> = emptyList()
+    var recipes : List<Recipe> = emptyList(),
+    var selectedRecipe : Recipe = Recipe(name="Ceci est test pour voir si le transfers entre consultation et modifier marche"),
+    var filteredRecipes : List<Recipe> = emptyList()
 )
