@@ -34,6 +34,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.recipio.data.Recipe
+import com.example.recipio.ui.ModifyScreen
 import com.example.recipio.ui.RecipeScreen
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
@@ -41,7 +43,9 @@ enum class RecipeApp(@StringRes val title: Int){
     Start(title = R.string.app_name),
     Search(title=R.string.search),
     Home(title=R.string.home),
-    Recipe(title=R.string.recipe)
+    Recipe(title=R.string.recipe),
+    Add(title=R.string.add),
+    Modify(title=R.string.modify)
 }
 
 @Composable
@@ -87,6 +91,11 @@ fun RecipeApp(
                 ) {
                     Text(stringResource(R.string.recipe), fontSize = 20.sp)
                 }
+                Button(
+                    onClick = {navController.navigate(RecipeApp.Add.name)}
+                ) {
+                    Text(stringResource(R.string.add))
+                }
             }
         }
     ) { innerPadding ->
@@ -107,12 +116,26 @@ fun RecipeApp(
                     SearchScreen(recipes = uiState.filteredRecipes, onValueChanged = {filter -> viewModel.filterRecipes(filter)})
                 }
                 composable(route = RecipeApp.Recipe.name) {
-                    RecipeScreen(recipe = uiState.selectedRecipe,onRecipeChange = {},modifier=Modifier
+                    RecipeScreen(recipe = uiState.selectedRecipe,
+                        onRecipeChange = {},
+                        onModifyClicked = {navController.navigate(RecipeApp.Modify.name)},
+                        modifier=Modifier
+                            .padding(top = 25.dp, start = 5.dp)
+                            .fillMaxWidth())
+                }
+                composable(route = RecipeApp.Add.name) {
+                    ModifyScreen(recipe = Recipe(),onRecipeChange = {},modifier=Modifier
                         .padding(top = 25.dp, start = 5.dp)
                         .fillMaxWidth())
                 }
+                composable(route = RecipeApp.Modify.name) {
+                    ModifyScreen(recipe = uiState.selectedRecipe, onRecipeChange = {}, modifier = Modifier
+                        .padding(top = 25.dp, start = 5.dp)
+                        .fillMaxWidth()
+                    )
+                }
             }
-    }
+        }
     }
 
 }
