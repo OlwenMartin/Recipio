@@ -23,8 +23,11 @@ import com.example.recipio.ui.SearchScreen
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.recipio.data.Recipe
+import com.example.recipio.ui.LoginScreen
 import com.example.recipio.ui.ModifyScreen
 import com.example.recipio.ui.RecipeScreen
+import com.example.recipio.ui.SignupScreen
+import com.example.recipio.ui.SplashScreen
 
 enum class RecipeApp(@StringRes val title: Int){
     Start(title = R.string.app_name),
@@ -77,9 +80,23 @@ fun RecipeApp(
         ) {
             NavHost(
                 navController = navController,
-                startDestination = RecipeApp.Home.name,
+                //startDestination = RecipeApp.Home.name,
+                startDestination = "Splash",
                 modifier = Modifier.padding(innerPadding)
             ) {
+
+                composable(route = "Login") {
+                    LoginScreen(navController)
+                }
+
+                composable(route = "Splash") {
+                    SplashScreen(navController)
+                }
+
+                composable(route = "Signup") {
+                    SignupScreen(navController)
+                }
+
                 composable(route = RecipeApp.Home.name) {
                     HomeScreen()
                 }
