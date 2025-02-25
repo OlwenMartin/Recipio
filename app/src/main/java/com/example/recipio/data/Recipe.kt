@@ -1,8 +1,5 @@
 package com.example.recipio.data
 
-import android.media.Image
-import com.example.recipio.R
-
 data class Recipe(
     var image : Int = 0,
     var isFavorite : Boolean = false,

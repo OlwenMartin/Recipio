@@ -87,9 +87,12 @@ fun RecipeApp(
                     SearchScreen(recipes = uiState.filteredRecipes, onValueChanged = {filter -> viewModel.filterRecipes(filter)})
                 }
                 composable(route = RecipeApp.Recipe.name) {
-                    RecipeScreen(recipe = uiState.selectedRecipe,onRecipeChange = {},modifier=Modifier
-                        .padding(top = 25.dp, start = 5.dp)
-                        .fillMaxWidth())
+                    RecipeScreen(recipe = uiState.selectedRecipe,
+                        onRecipeChange = {},
+                        onModifyClicked = {navController.navigate(RecipeApp.Modify.name)},
+                        modifier=Modifier
+                            .padding(top = 25.dp, start = 5.dp)
+                            .fillMaxWidth())
                 }
                 composable(route = RecipeApp.Add.name) {
                     ModifyScreen(recipe = Recipe(),onRecipeChange = {},modifier=Modifier
@@ -97,12 +100,13 @@ fun RecipeApp(
                         .fillMaxWidth())
                 }
                 composable(route = RecipeApp.Modify.name) {
-                    ModifyScreen(recipe = Recipe(),onRecipeChange = {},modifier=Modifier
+                    ModifyScreen(recipe = uiState.selectedRecipe, onRecipeChange = {}, modifier = Modifier
                         .padding(top = 25.dp, start = 5.dp)
-                        .fillMaxWidth())
+                        .fillMaxWidth()
+                    )
                 }
             }
-    }
+        }
     }
 
 }

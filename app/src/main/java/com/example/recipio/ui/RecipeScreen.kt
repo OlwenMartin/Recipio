@@ -2,7 +2,6 @@ package com.example.recipio.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +16,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -36,7 +34,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,6 +45,7 @@ import com.example.recipio.data.Recipe
 fun RecipeScreen(
     recipe: Recipe,
     onRecipeChange: (Recipe) -> Unit,
+    onModifyClicked: (Recipe) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -75,7 +73,7 @@ fun RecipeScreen(
 
             // Icônes Modifier et Favori
             Row {
-                IconButton(onClick = { /* lien vers ModifyScreen */ }) {
+                IconButton(onClick = { onModifyClicked(recipe) }) {
                     Icon(Icons.Default.Create, contentDescription = "Modify")
                 }
                 IconButton(onClick = {
@@ -258,5 +256,5 @@ fun RecipeScreenPreview(){
         4,
         30,
         "notes en plus")
-    RecipeScreen(recipe, onRecipeChange = {}, modifier = Modifier)
+    RecipeScreen(recipe, onRecipeChange = {}, onModifyClicked = {},modifier = Modifier)
 }
