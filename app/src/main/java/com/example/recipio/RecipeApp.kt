@@ -1,5 +1,6 @@
 package com.example.recipio
 
+import HomeScreen
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,7 +18,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.recipio.ui.HomeScreen
 import com.example.recipio.ui.RecipeViewModel
 import com.example.recipio.ui.SearchScreen
 import androidx.compose.ui.res.stringResource
@@ -98,7 +98,7 @@ fun RecipeApp(
                 }
 
                 composable(route = RecipeApp.Home.name) {
-                    HomeScreen()
+                    HomeScreen(navController)
                 }
                 composable(route = RecipeApp.Search.name) {
                     SearchScreen(recipes = uiState.filteredRecipes, onValueChanged = {filter -> viewModel.filterRecipes(filter)})
