@@ -1,9 +1,8 @@
 package com.example.recipio
 
+import HomeScreen
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,17 +26,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.recipio.ui.HomeScreen
 import com.example.recipio.ui.RecipeViewModel
 import com.example.recipio.ui.SearchScreen
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.recipio.data.Recipe
+import com.example.recipio.ui.LoginScreen
 import com.example.recipio.ui.ModifyScreen
 import com.example.recipio.ui.RecipeScreen
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
+import com.example.recipio.ui.SignupScreen
+import com.example.recipio.ui.SplashScreen
 
 enum class RecipeApp(@StringRes val title: Int){
     Start(title = R.string.app_name),
@@ -62,7 +61,7 @@ fun RecipeApp(
                     .padding(top = 30.dp)
             ){
                 Image(
-                    painter = painterResource(id = R.drawable.logo),
+                    painter = painterResource(id = R.drawable.logo_header),
                     contentDescription = "Recipe Image",
                     modifier = Modifier
                         .size(180.dp, 60.dp)
@@ -106,11 +105,25 @@ fun RecipeApp(
         ) {
             NavHost(
                 navController = navController,
-                startDestination = RecipeApp.Home.name,
+                //startDestination = RecipeApp.Home.name,
+                startDestination = "Splash",
                 modifier = Modifier.padding(innerPadding)
             ) {
+
+                composable(route = "Login") {
+                    LoginScreen(navController)
+                }
+
+                composable(route = "Splash") {
+                    SplashScreen(navController)
+                }
+
+                composable(route = "Signup") {
+                    SignupScreen(navController)
+                }
+
                 composable(route = RecipeApp.Home.name) {
-                    HomeScreen()
+                    HomeScreen(navController)
                 }
                 composable(route = RecipeApp.Search.name) {
                     SearchScreen(recipes = uiState.filteredRecipes, onValueChanged = {filter -> viewModel.filterRecipes(filter)})
