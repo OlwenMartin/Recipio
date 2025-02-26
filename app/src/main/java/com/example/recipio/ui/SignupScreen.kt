@@ -6,7 +6,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.recipio.R
-
 @Composable
 fun SignupScreen(navController: NavController) {
     val context = LocalContext.current
@@ -70,112 +71,118 @@ fun SignupScreen(navController: NavController) {
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(20.dp)
             ) {
-                Column(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    Spacer(modifier = Modifier.height(40.dp))
-                    Text(
-                        text = "S'inscrire",
-                        fontSize = 40.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = colorResource(id = R.color.black),
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(70.dp))
-
-                    OutlinedTextField(
-                        value = email,
-                        onValueChange = { email = it },
-                        label = { Text("Courriel") },
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.baseline_email_24),
-                                contentDescription = "Email Icon"
-                            )
-                        },
-                        modifier = Modifier.width(300.dp),
-                        shape = RoundedCornerShape(10.dp),
-                        singleLine = true,
-                        maxLines = 1
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = { Text("Mot de passe") },
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.baseline_adb_24),
-                                contentDescription = "Password Icon"
-                            )
-                        },
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.width(300.dp),
-                        shape = RoundedCornerShape(10.dp),
-                        singleLine = true,
-                        maxLines = 1
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    OutlinedTextField(
-                        value = confirmPassword,
-                        onValueChange = { confirmPassword = it },
-                        label = { Text("Confirmer le mot de passe") },
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.baseline_adb_24),
-                                contentDescription = "Confirm Password Icon"
-                            )
-                        },
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.width(300.dp),
-                        shape = RoundedCornerShape(10.dp),
-                        singleLine = true,
-                        maxLines = 1
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    Button(
-                        onClick = {
-                            loading = true
-                            if (password == confirmPassword && email.isNotEmpty()) {
-                                navController.navigate("Home")
-                            } else {
-                                Toast.makeText(context, "Erreur d'inscription", Toast.LENGTH_SHORT).show()
-                            }
-                            loading = false
-                        },
+                    Column(
                         modifier = Modifier
-                            .wrapContentWidth()
-                            .height(50.dp),
-                        shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = colorResource(id = R.color.orange)
-                        ),
-                        border = BorderStroke(1.dp, colorResource(id = R.color.orange_dark))
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(text = if (loading) "Inscription..." else "S'inscrire", fontSize = 18.sp)
-                    }
-                    Spacer(modifier = Modifier.height(20.dp))
+                        Spacer(modifier = Modifier.height(40.dp))
+                        Text(
+                            text = "S'inscrire",
+                            fontSize = 40.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = colorResource(id = R.color.black),
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(70.dp))
 
-                    Row {
-                        Text(
-                            text = "Déjà un compte? ",
-                            fontSize = 18.sp,
-                            color = colorResource(id = R.color.black)
+                        OutlinedTextField(
+                            value = email,
+                            onValueChange = { email = it },
+                            label = { Text("Courriel") },
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.baseline_email_24),
+                                    contentDescription = "Email Icon"
+                                )
+                            },
+                            modifier = Modifier.width(300.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            singleLine = true,
+                            maxLines = 1
                         )
-                        Text(
-                            text = "Connecte-toi !",
-                            fontSize = 18.sp,
-                            color = colorResource(id = R.color.orange),
-                            modifier = Modifier.clickable {
-                                navController.navigate("Login")
-                            }
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        OutlinedTextField(
+                            value = password,
+                            onValueChange = { password = it },
+                            label = { Text("Mot de passe") },
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.baseline_adb_24),
+                                    contentDescription = "Password Icon"
+                                )
+                            },
+                            visualTransformation = PasswordVisualTransformation(),
+                            modifier = Modifier.width(300.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            singleLine = true,
+                            maxLines = 1
                         )
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        OutlinedTextField(
+                            value = confirmPassword,
+                            onValueChange = { confirmPassword = it },
+                            label = { Text("Confirmer le mot de passe") },
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.baseline_adb_24),
+                                    contentDescription = "Confirm Password Icon"
+                                )
+                            },
+                            visualTransformation = PasswordVisualTransformation(),
+                            modifier = Modifier.width(300.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            singleLine = true,
+                            maxLines = 1
+                        )
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        Button(
+                            onClick = {
+                                loading = true
+                                if (password == confirmPassword && email.isNotEmpty()) {
+                                    navController.navigate("Home")
+                                } else {
+                                    Toast.makeText(context, "Erreur d'inscription", Toast.LENGTH_SHORT).show()
+                                }
+                                loading = false
+                            },
+                            modifier = Modifier
+                                .wrapContentWidth()
+                                .height(50.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = colorResource(id = R.color.orange)
+                            ),
+                            border = BorderStroke(1.dp, colorResource(id = R.color.orange_dark))
+                        ) {
+                            Text(text = if (loading) "Inscription..." else "S'inscrire", fontSize = 18.sp)
+                        }
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        Row {
+                            Text(
+                                text = "Déjà un compte? ",
+                                fontSize = 18.sp,
+                                color = colorResource(id = R.color.black)
+                            )
+                            Text(
+                                text = "Connecte-toi !",
+                                fontSize = 18.sp,
+                                color = colorResource(id = R.color.orange),
+                                modifier = Modifier.clickable {
+                                    navController.navigate("Login")
+                                }
+                            )
+                        }
                     }
                 }
             }
