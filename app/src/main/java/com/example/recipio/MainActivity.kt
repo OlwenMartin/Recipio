@@ -1,5 +1,8 @@
 package com.example.recipio
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -24,6 +27,14 @@ import com.example.recipio.data.Recipe
 import com.example.recipio.ui.theme.RecipioTheme
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.storage
+import java.io.File
+import android.provider.MediaStore
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import java.util.UUID
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +43,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             RecipioTheme {
                 //seedDatabase()
+                openGallery()
                 RecipeApp()
             }
         }
@@ -50,6 +62,47 @@ class MainActivity : ComponentActivity() {
             content = content
         )
     }
+
+
+    val PICK_IMAGE_REQUEST = 1
+    var imageUri: Uri? = null
+    val storage = FirebaseStorage.getInstance()
+    val storageRef = storage.reference
+
+
+    fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        intent.type = "image/*"
+        startActivityForResult(intent, PICK_IMAGE_REQUEST)
+    }
+
+    // Récupérer l'image sélectionnée
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+            imageUri = data.data
+            uploadImage()
+        }
+    }
+
+    fun uploadImage() {
+        if (imageUri != null) {
+            val fileRef = storageRef.child("images/${UUID.randomUUID()}.jpg")
+
+            fileRef.putFile(imageUri!!)
+                .addOnSuccessListener {
+                    fileRef.downloadUrl.addOnSuccessListener { uri ->
+                        Log.d("Firebase", "Image uploaded. Download URL: $uri")
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("Firebase", "Upload failed", e)
+                }
+        } else {
+            Log.e("Firebase", "No image selected")
+        }
+    }
+
 
     private fun seedDatabase(){
         val recipes = listOf(
