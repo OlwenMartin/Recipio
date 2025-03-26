@@ -17,22 +17,39 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.recipio.R
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
 @Composable
 fun SplashScreen(navController: NavController) {
+
+    // Ensure edge-to-edge
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        WindowCompat.setDecorFitsSystemWindows(
+            (view.context as android.app.Activity).window,
+            false
+        )
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color(0xFF9bc268))
+            .systemBarsPadding()
+            .fillMaxWidth()
+            .safeContentPadding()
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.bg_splash),
+        /*Image(
+            //painter = painterResource(id = R.drawable.bg_splash),
+            painter = painterResource(id = R.drawable.test),
             contentDescription = "Background",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
-        )
+        )*/
 
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize() .windowInsetsPadding(WindowInsets.systemBars),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {

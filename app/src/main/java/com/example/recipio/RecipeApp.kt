@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,11 +33,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.recipio.data.Recipe
+import com.example.recipio.ui.AllRecipesScreen
+import com.example.recipio.ui.FavoriteRecipesScreen
 import com.example.recipio.ui.LoginScreen
 import com.example.recipio.ui.ModifyScreen
+import com.example.recipio.ui.RecentRecipesScreen
 import com.example.recipio.ui.RecipeScreen
 import com.example.recipio.ui.SignupScreen
 import com.example.recipio.ui.SplashScreen
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+
 
 enum class RecipeApp(@StringRes val title: Int){
     Start(title = R.string.app_name),
@@ -53,21 +61,33 @@ fun RecipeApp(
     navController: NavHostController = rememberNavController()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var currentRoute by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(navController) {
+        navController.currentBackStackEntryFlow.collect { backStackEntry ->
+            currentRoute = backStackEntry.destination.route
+        }
+    }
+
     Scaffold(
         topBar = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
-                    .padding(top = 30.dp)
-            ){
-                Image(
-                    painter = painterResource(id = R.drawable.logo_header),
-                    contentDescription = "Recipe Image",
+            if (currentRoute != RecipeApp.Home.name && currentRoute != "Splash" && currentRoute != "Signup" && currentRoute != "Login") {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .size(180.dp, 60.dp)
-                        .clip(RoundedCornerShape(12.dp)),
-                    contentScale = ContentScale.Crop
-                )
+                        .fillMaxWidth()
+                        .padding(top = 30.dp)
+
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.logo_accueil),
+                        contentDescription = "Recipe Image",
+                        modifier = Modifier
+                            .size(100.dp, 110.dp)
+                            .clip(RoundedCornerShape(12.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
         },
         bottomBar = {
@@ -146,6 +166,15 @@ fun RecipeApp(
                         .padding(top = 25.dp, start = 5.dp)
                         .fillMaxWidth()
                     )
+                }
+                composable(route = "recent_recipes") {
+                    RecentRecipesScreen(navController)
+                }
+                composable(route = "favorite_recipes") {
+                    FavoriteRecipesScreen(navController)
+                }
+                composable(route = "all_recipes") {
+                    AllRecipesScreen(navController)
                 }
             }
         }

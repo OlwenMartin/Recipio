@@ -25,13 +25,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.recipio.R
+import com.google.firebase.auth.FirebaseAuth
+
 @Composable
 fun LoginScreen(navController: NavController) {
     val context = LocalContext.current
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
+    val auth = FirebaseAuth.getInstance()
 
+    fun loginUser(email: String, password: String) {
+        loading = true
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                loading = false
+                if (task.isSuccessful) {
+                    Toast.makeText(context, "Connexion réussie!", Toast.LENGTH_SHORT).show()
+                    navController.navigate("Home")
+                } else {
+                    Toast.makeText(context, "Échec de connexion: ${task.exception?.localizedMessage}", Toast.LENGTH_LONG).show()
+                }
+            }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -92,8 +108,8 @@ fun LoginScreen(navController: NavController) {
                         Spacer(modifier = Modifier.height(70.dp))
 
                         OutlinedTextField(
-                            value = username,
-                            onValueChange = { username = it },
+                            value = email,
+                            onValueChange = { email = it },
                             label = { Text("Courriel") },
                             leadingIcon = {
                                 Icon(
@@ -127,15 +143,8 @@ fun LoginScreen(navController: NavController) {
                         Spacer(modifier = Modifier.height(40.dp))
 
                         Button(
-                            onClick = {
-                                loading = true
-                                if (username == "user" && password == "password") {
-                                    navController.navigate("Home")
-                                } else {
-                                    Toast.makeText(context, "Login Failed", Toast.LENGTH_SHORT).show()
-                                }
-                                loading = false
-                            },
+                            onClick = { loginUser(email, password) },
+                            enabled = !loading,
                             modifier = Modifier
                                 .wrapContentWidth()
                                 .height(50.dp),

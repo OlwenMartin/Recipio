@@ -70,21 +70,19 @@ fun HomeScreen(navController: NavHostController) {
                             navController.navigate(RecipeApp.Search.name)
                         }
                 )
-
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Sections
-            RecipeSection(title = "Récents")
-            RecipeSection(title = "Favoris")
+            RecipeSection(title = "Récents", navController = navController)
+            RecipeSection(title = "Favoris", navController = navController)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
                 Button(
-                    onClick = { /* TODO: Action ajouter */ },
+                    onClick = {navController.navigate(RecipeApp.Add.name)},
                     modifier = Modifier.padding(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE58E30))
                 ) {
@@ -92,8 +90,7 @@ fun HomeScreen(navController: NavHostController) {
                 }
             }
 
-
-            RecipeImageScrollSection(title = "Toutes les recettes")
+            RecipeImageScrollSection(title = "Toutes les recettes", navController = navController)
             Spacer(modifier = Modifier.height(10.dp))
         }
 
@@ -102,13 +99,14 @@ fun HomeScreen(navController: NavHostController) {
 }
 
 @Composable
-fun RecipeImageItem(imageRes: Int) {
+fun RecipeImageItem(imageRes: Int, navController: NavHostController) {
     Box(
         modifier = Modifier
             .padding(8.dp)
             .size(120.dp)
-            .clip(RoundedCornerShape(8.dp)  )
+            .clip(RoundedCornerShape(8.dp))
             .background(colorResource(id = R.color.green))
+            .clickable { navController.navigate(RecipeApp.Recipe.name) }
     ) {
         Image(
             painter = painterResource(id = imageRes),
@@ -119,12 +117,20 @@ fun RecipeImageItem(imageRes: Int) {
 }
 
 @Composable
-fun RecipeSection(title: String) {
+fun RecipeSection(title: String, navController: NavHostController) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .clickable {
+                    if (title == "Récents") {
+                        navController.navigate("recent_recipes")
+                    }
+                    else if (title == "Favoris") {
+                        navController.navigate("favorite_recipes")
+                    }
+                },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
@@ -142,19 +148,22 @@ fun RecipeSection(title: String) {
         }
         LazyRow(modifier = Modifier.padding(start = 16.dp)) {
             items(List(3) { "Recette" }) {
-                RecipeItem()
+                RecipeItem(navController)
             }
         }
     }
 }
 
 @Composable
-fun RecipeImageScrollSection(title: String) {
+fun RecipeImageScrollSection(title: String, navController: NavHostController) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .clickable {
+                    navController.navigate("all_recipes")
+                },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
@@ -172,20 +181,21 @@ fun RecipeImageScrollSection(title: String) {
         }
         LazyRow(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
             items(List(10) { R.drawable.default_dish_image }) { imageRes ->
-                RecipeImageItem(imageRes)
+                RecipeImageItem(imageRes, navController)
             }
         }
     }
 }
 
 @Composable
-fun RecipeItem() {
+fun RecipeItem(navController: NavHostController) {
     Box(
         modifier = Modifier
             .padding(8.dp)
             .size(100.dp)
-            .clip(RoundedCornerShape(8.dp)  )
+            .clip(RoundedCornerShape(8.dp))
             .background(colorResource(id = R.color.green))
+            .clickable { navController.navigate(RecipeApp.Recipe.name) }
     ) {
         Image(
             painter = painterResource(id = R.drawable.default_dish_image),

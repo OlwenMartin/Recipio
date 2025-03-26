@@ -23,11 +23,16 @@ import com.example.recipio.data.Ingredient
 import com.example.recipio.data.Recipe
 import com.example.recipio.ui.theme.RecipioTheme
 import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.firestore
+import androidx.core.view.WindowCompat
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        FirebaseApp.initializeApp(this)
         enableEdgeToEdge()
         setContent {
             RecipioTheme {
