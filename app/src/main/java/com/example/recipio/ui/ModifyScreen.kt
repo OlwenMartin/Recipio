@@ -18,13 +18,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,9 +50,11 @@ import com.example.recipio.data.Recipe
 @Composable
 fun ModifyScreen(
     recipe: Recipe,
+    isNew: Boolean = false,
     onRecipeChange: (Recipe) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var expanded by remember { mutableStateOf(false) }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -59,12 +68,25 @@ fun ModifyScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Modifier la recette",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF88B04B)
-            )
+            if(isNew) {
+                Text(
+                    text = "Nouvelle recette",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF88B04B)
+                )
+            }
+            else{
+                Text(
+                    text = "Modifier la recette",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF88B04B)
+                )
+                IconButton(onClick = { /* Action supprimer */ }) {
+                    Icon(Icons.Default.Delete, contentDescription = "Supprimer")
+                }
+            }
             IconButton(onClick = { /* Action sauvegarde */ }) {
                 Icon(Icons.Default.Check, contentDescription = "Sauvegarder")
             }
@@ -101,6 +123,38 @@ fun ModifyScreen(
                 .padding(top = 8.dp)
         ) {
             item {
+                //Choix catégorie (entrées, plats, dessert,...)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Catégorie : ")
+                    Text("Entrée")
+                    IconButton(onClick = { expanded = !expanded }) {
+                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = "More options")
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Entrée") },
+                            onClick = { /* Changement du Texte */ }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Plat principal") },
+                            onClick = { /* Changement du Texte */ }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Dessert") },
+                            onClick = { /* Changement du Texte */ }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Autre") },
+                            onClick = { /* Changement du Texte */ }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 // Nom
                 OutlinedTextField(
                     value = recipe.name,
