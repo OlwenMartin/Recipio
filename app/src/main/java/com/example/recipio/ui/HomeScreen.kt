@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,9 +22,19 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.recipio.R
 import com.example.recipio.RecipeApp
+import com.example.recipio.data.Recipe
+import com.example.recipio.viewmodel.RecipeViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 
 @Composable
-fun HomeScreen(navController: NavHostController) {
+fun HomeScreen(navController: NavHostController, viewModel: RecipeViewModel = viewModel()) {
+
+    LaunchedEffect(Unit) {
+        viewModel.getRecipes()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -74,15 +85,26 @@ fun HomeScreen(navController: NavHostController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            RecipeSection(title = "Récents", navController = navController)
-            RecipeSection(title = "Favoris", navController = navController)
+            //RecipeSection(title = "Récents", navController = navController)
+            //RecipeSection(title = "Favoris", navController = navController)
+            RecipeSection(title = "Récents", navController = navController, viewModel = viewModel)
+            RecipeSection(title = "Favoris", navController = navController, viewModel = viewModel)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
                 Button(
-                    onClick = {navController.navigate(RecipeApp.Add.name)},
+                    //onClick = {navController.navigate(RecipeApp.Add.name)}, //pour l'instant
+                    //pour tester seulement
+                    onClick = {
+                        val randomRecipe = Recipe(
+                            name = "Recette aléatoire",
+                            description = "Une recette ajoutée au hasard",
+                            image = R.drawable.default_dish_image
+                        )
+                        viewModel.addRecipeToUser(randomRecipe)
+                    },
                     modifier = Modifier.padding(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE58E30))
                 ) {
@@ -113,44 +135,6 @@ fun RecipeImageItem(imageRes: Int, navController: NavHostController) {
             contentDescription = "Recette",
             modifier = Modifier.fillMaxSize()
         )
-    }
-}
-
-@Composable
-fun RecipeSection(title: String, navController: NavHostController) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .clickable {
-                    if (title == "Récents") {
-                        navController.navigate("recent_recipes")
-                    }
-                    else if (title == "Favoris") {
-                        navController.navigate("favorite_recipes")
-                    }
-                },
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
-        ) {
-            Text(
-                text = title,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(end = 8.dp)
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.baseline_arrow_forward_24),
-                contentDescription = "Voir plus",
-                modifier = Modifier.size(24.dp)
-            )
-        }
-        LazyRow(modifier = Modifier.padding(start = 16.dp)) {
-            items(List(3) { "Recette" }) {
-                RecipeItem(navController)
-            }
-        }
     }
 }
 
@@ -188,18 +172,46 @@ fun RecipeImageScrollSection(title: String, navController: NavHostController) {
 }
 
 @Composable
-fun RecipeItem(navController: NavHostController) {
+fun RecipeSection(title: String, navController: NavHostController, viewModel: RecipeViewModel) {
+    val recipes: List<Recipe> by viewModel.recipes.collectAsState()
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .clickable { navController.navigate("all_recipes") },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = title, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_arrow_forward_24),
+                contentDescription = "Voir plus",
+                modifier = Modifier.size(24.dp)
+            )
+        }
+        LazyRow(modifier = Modifier.padding(start = 16.dp)) {
+            items(recipes) { recipe ->
+                RecipeItem(recipe, navController)
+            }
+        }
+    }
+}
+
+@Composable
+fun RecipeItem(recipe: Recipe, navController: NavHostController) {
     Box(
         modifier = Modifier
             .padding(8.dp)
-            .size(100.dp)
+            .size(120.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(colorResource(id = R.color.green))
-            .clickable { navController.navigate(RecipeApp.Recipe.name) }
+            .background(Color.Gray)
+            .clickable { navController.navigate("recipe_detail/${recipe.name}") }
     ) {
         Image(
             painter = painterResource(id = R.drawable.default_dish_image),
-            contentDescription = "Recette",
+            contentDescription = recipe.name,
             modifier = Modifier.fillMaxSize()
         )
     }

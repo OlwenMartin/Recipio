@@ -1,7 +1,6 @@
 package com.example.recipio.ui
 
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,7 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.recipio.R
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.firestore
 
 @Composable
 fun SignupScreen(navController: NavController) {
@@ -154,8 +155,23 @@ fun SignupScreen(navController: NavController) {
                                     auth.createUserWithEmailAndPassword(email, password)
                                         .addOnCompleteListener { task ->
                                             if (task.isSuccessful) {
-                                                Toast.makeText(context, "Inscription réussie", Toast.LENGTH_SHORT).show()
-                                                navController.navigate("Login")
+                                                val userId = auth.currentUser?.uid
+                                                if (userId != null) {
+                                                    val userRef = Firebase.firestore.collection("users").document(userId)
+                                                    val userData = hashMapOf(
+                                                        "email" to email,
+                                                        "recipes" to listOf<String>() // Liste vide de recettes
+                                                    )
+
+                                                    userRef.set(userData)
+                                                        .addOnSuccessListener {
+                                                            Toast.makeText(context, "Inscription réussie", Toast.LENGTH_SHORT).show()
+                                                            navController.navigate("Login")
+                                                        }
+                                                        .addOnFailureListener { e ->
+                                                            Toast.makeText(context, "Erreur Firestore: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                        }
+                                                }
                                             } else {
                                                 val errorMessage = task.exception?.message ?: "Une erreur s'est produite"
                                                 Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
@@ -167,6 +183,7 @@ fun SignupScreen(navController: NavController) {
                             }) {
                             Text(text = if (loading) "Inscription..." else "S'inscrire", fontSize = 18.sp)
                         }
+
                         Spacer(modifier = Modifier.height(20.dp))
 
                         Row {

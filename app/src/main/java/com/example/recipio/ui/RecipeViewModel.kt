@@ -21,7 +21,7 @@ import kotlinx.coroutines.tasks.await
 class RecipeViewModel() : ViewModel(){
     private val _uiState = MutableStateFlow(RecipeUiState())
     val uiState: StateFlow<RecipeUiState> = _uiState
-    private var recipes : List<Recipe> = emptyList()
+    var recipes : List<Recipe> = emptyList()
 
     suspend fun fetchRecipes(): List<Recipe> {
         val db = Firebase.firestore
