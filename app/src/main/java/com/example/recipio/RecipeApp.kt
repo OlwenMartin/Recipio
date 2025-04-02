@@ -3,6 +3,7 @@ package com.example.recipio
 import HomeScreen
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -120,7 +121,8 @@ fun RecipeApp(
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(top = 25.dp, start = 5.dp)
+                //je décommente pcq empêche l’arrière-plan de couvrir toute la largeur de l’écran
+                //.padding(top = 25.dp, start = 5.dp)
                 .fillMaxWidth()
         ) {
             NavHost(
