@@ -1,13 +1,11 @@
 package com.example.recipio.ui
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -60,7 +58,6 @@ fun ModifyScreen(
     onRecipeChange: (Recipe) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var expanded by remember { mutableStateOf(false) }
     var copy by remember { mutableStateOf(recipe) }
     Column(
         modifier = modifier
@@ -286,7 +283,7 @@ fun ModifyScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("Ingrédients:")
                         IconButton(onClick = {
-                            val updatedIngredients = copy.ingredients + Ingredient("", 0, "")
+                            val updatedIngredients = copy.ingredients + Ingredient("", 0.0, "")
                             copy = copy.copy(ingredients = updatedIngredients)
                             onRecipeChange(copy)
                         }) {
@@ -312,7 +309,7 @@ fun ModifyScreen(
                             OutlinedTextField(
                                 value = ing.amount.toString(),
                                 onValueChange = { newAmountStr ->
-                                    val newAmount = newAmountStr.toIntOrNull()
+                                    val newAmount = newAmountStr.toDoubleOrNull()
                                     if (newAmount != null) {
                                         val updated = copy.ingredients.toMutableList()
                                         updated[index] = updated[index].copy(amount = newAmount)
@@ -455,7 +452,7 @@ fun ModifyScreenPreview(){
         "c'est des muffins quoi",
         listOf("tag1","tag2"),
         listOf("tu fais la pate","tu met au four"),
-        listOf(Ingredient("ing1",30,"g")),
+        listOf(Ingredient("ing1",30.0,"g")),
         4,
         30,
         "notes en plus")
