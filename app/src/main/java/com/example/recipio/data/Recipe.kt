@@ -3,9 +3,11 @@ package com.example.recipio.data
 import com.google.firebase.auth.FirebaseAuth
 
 data class Recipe(
+
     var image: Int = 0,
     var isFavorite: Boolean = false,
     var name: String = "",
+    var category : String = "",
     var description: String = "",
     var tags: List<String> = listOf(),
     var steps: List<String> = listOf(),
@@ -31,3 +33,4 @@ data class Recipe(
         )
     }
 }
+

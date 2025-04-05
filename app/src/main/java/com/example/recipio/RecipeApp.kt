@@ -159,7 +159,7 @@ fun RecipeApp(
                             .fillMaxWidth())
                 }
                 composable(route = RecipeApp.Add.name) {
-                    ModifyScreen(recipe = Recipe(),onRecipeChange = {},modifier=Modifier
+                    ModifyScreen(recipe = Recipe(),isNew = true, onRecipeChange = {},modifier=Modifier
                         .padding(top = 25.dp, start = 5.dp)
                         .fillMaxWidth())
                 }

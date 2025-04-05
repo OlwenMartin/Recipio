@@ -26,6 +26,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -72,15 +76,16 @@ fun RecipeScreen(
             }
 
             // Icônes Modifier et Favori
+            var favorite by remember { mutableStateOf(recipe.isFavorite) }
             Row {
                 IconButton(onClick = { onModifyClicked(recipe) }) {
                     Icon(Icons.Default.Create, contentDescription = "Modify")
                 }
                 IconButton(onClick = {
-                    onRecipeChange(recipe.copy(isFavorite = !recipe.isFavorite))
+                    favorite = !favorite
                 }) {
                     Icon(
-                        imageVector = if (recipe.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        imageVector = if (favorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                         contentDescription = "Favori"
                     )
                 }
@@ -114,6 +119,11 @@ fun RecipeScreen(
                 .padding(top = 8.dp)
         ) {
             item {
+                //Categorie
+                Text(text = "Categorie : " + recipe.category)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 // Nom
                 OutlinedTextField(
                     value = recipe.name,
@@ -159,37 +169,49 @@ fun RecipeScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Nombre de personnes
+                var number by remember { mutableStateOf(recipe.numberOfPeople) }
+
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Pour : ")
                     IconButton(onClick = {
-                        if (recipe.numberOfPeople > 1) onRecipeChange(recipe.copy(numberOfPeople = recipe.numberOfPeople - 1))
+                        if (number > 1) {
+                            number -= 1
+                            onRecipeChange(recipe.copy(numberOfPeople = number)) // Met à jour le nombre de personnes
+                        }
                     }) {
                         Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Diminuer")
                     }
-                    Text(text = recipe.numberOfPeople.toString())
+                    Text(number.toString())
                     IconButton(onClick = {
-                        onRecipeChange(recipe.copy(numberOfPeople = recipe.numberOfPeople + 1))
+                        number += 1
+                        onRecipeChange(recipe.copy(numberOfPeople = number)) // Met à jour le nombre de personnes
                     }) {
                         Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Augmenter")
                     }
+                    Text(" personnes")
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Ingrédients
+                // Ingrédients avec quantités ajustées
                 Column {
-                    Text("Ingrédients:")
+                    Text("Ingrédients :")
+
+                    // Ratio de modification des quantités selon le nombre de personnes
+                    val ratio = number.toFloat() / recipe.numberOfPeople.toFloat()
+
                     recipe.ingredients.forEachIndexed { index, ing ->
+                        // Calcul de la quantité ajustée selon le ratio
+                        val adjustedAmount = ing.amount * ratio
+
+                        // Affichage dynamique des ingrédients sans modification possible par l'utilisateur
                         OutlinedTextField(
-                            value = "${ing.name} ${ing.amount} ${ing.unit}",
-                            onValueChange = { newValue ->
-                                val updatedIngredients = recipe.ingredients.toMutableList()
-                                updatedIngredients[index] = ing.copy(name = newValue)
-                                onRecipeChange(recipe.copy(ingredients = updatedIngredients))
-                            },
+                            value = "${ing.name} ${String.format("%.2f", adjustedAmount)} ${ing.unit}",
+                            onValueChange = {}, // Aucune modification autorisée
+                            label = { Text("Ingrédient") },
                             modifier = Modifier
-                                .padding(4.dp)
                                 .fillMaxWidth()
+                                .padding(vertical = 4.dp)
                         )
                     }
                 }
@@ -248,11 +270,12 @@ fun Chip(text: String) {
 fun RecipeScreenPreview(){
     val recipe = Recipe(R.drawable.exemple_image,
         true,
+        "Entrée",
         "Muffin",
         "c'est des muffins quoi",
         listOf("tag1","tag2"),
         listOf("tu fais la pate","tu met au four"),
-        listOf(Ingredient("ing1",30,"g")),
+        listOf(Ingredient("ing1",30.0,"g")),
         4,
         30,
         "notes en plus")

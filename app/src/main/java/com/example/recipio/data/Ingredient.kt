@@ -2,7 +2,7 @@ package com.example.recipio.data
 
 data class Ingredient(
     var name: String,
-    var amount: Int,
+    var amount : Double,
     var unit: String
 ) {
     fun toMap(): Map<String, Any> {
