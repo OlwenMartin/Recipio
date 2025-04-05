@@ -1,5 +1,6 @@
 package com.example.recipio.ui
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
@@ -59,6 +61,7 @@ fun ModifyScreen(
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var copy by remember { mutableStateOf(recipe) }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -104,8 +107,8 @@ fun ModifyScreen(
             contentAlignment = Alignment.Center
         ) {
             Image(
-                if(recipe.image != 0) {
-                    painterResource(id = recipe.image)
+                if(copy.image != 0) {
+                    painterResource(id = copy.image)
 
                 } else {
                     painterResource(id = R.drawable.default_dish_image)
@@ -160,7 +163,7 @@ fun ModifyScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Nom
-                var name by remember { mutableStateOf(recipe.name) }
+                var name by remember { mutableStateOf(copy.name) }
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -171,7 +174,7 @@ fun ModifyScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Description
-                var description by remember { mutableStateOf(recipe.description) }
+                var description by remember { mutableStateOf(copy.description) }
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
@@ -183,10 +186,46 @@ fun ModifyScreen(
 
                 // Tags
                 Column {
-                    Text("Tags:")
-                    Row {
-                        recipe.tags.forEach { tag ->
-                            Chip(text = tag, onRemove = { /* TODO: Supprimer le tag */ })
+                    var newTag by remember { mutableStateOf("") }
+
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("Tags:", modifier = Modifier.padding(end = 8.dp))
+                            OutlinedTextField(
+                                value = newTag,
+                                onValueChange = { newTag = it },
+                                label = { Text("Nouveau tag") },
+                                modifier = Modifier.weight(1f),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                            )
+                            IconButton(
+                                onClick = {
+                                    if (newTag.isNotBlank()) {
+                                        val updatedTags = copy.tags + newTag.trim()
+                                        copy = copy.copy(tags = updatedTags)
+                                        onRecipeChange(copy)
+                                        newTag = ""
+                                    }
+                                }
+                            ) {
+                                Icon(Icons.Default.Add, contentDescription = "Ajouter un tag")
+                            }
+                        }
+
+                        // Affichage des tags avec les chips
+                        Row(
+                            modifier = Modifier.padding(top = 8.dp),
+                        ) {
+                            copy.tags.forEachIndexed { index, tag ->
+                                Chip(
+                                    text = tag,
+                                    onRemove = {
+                                        val updatedTags = copy.tags.toMutableList().apply { removeAt(index) }
+                                        copy = copy.copy(tags = updatedTags)
+                                        onRecipeChange(copy)
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -196,7 +235,7 @@ fun ModifyScreen(
                 //Time
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Temps : ")
-                    var time by remember { mutableStateOf(recipe.time.toString()) }
+                    var time by remember { mutableStateOf(copy.time.toString()) }
                     OutlinedTextField(
                         value = time,
                         onValueChange = { time = it },
@@ -212,8 +251,8 @@ fun ModifyScreen(
                 // Nombre de personnes
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Pour : ")
-                    var numberOfPeople by remember { mutableStateOf(recipe.numberOfPeople.toString()) }
-                    var number:Int by remember { mutableStateOf(recipe.numberOfPeople) }
+                    var numberOfPeople by remember { mutableStateOf(copy.numberOfPeople.toString()) }
+                    var number:Int by remember { mutableStateOf(copy.numberOfPeople) }
                     IconButton(onClick = {
                         if (number > 1) {
                             number--
@@ -235,36 +274,78 @@ fun ModifyScreen(
 
                 // Ingrédients
                 Column {
-                    Text("Ingrédients:")
-                    recipe.ingredients.forEachIndexed { index, ing ->
-                        var ingredient by remember { mutableStateOf(ing.name) }
-                        var amount by remember { mutableStateOf(ing.amount.toString()) }
-                        var unit by remember { mutableStateOf(ing.unit) }
-                        OutlinedTextField(
-                            value = ingredient,
-                            onValueChange = { ingredient = it },
-                            label = { Text("Ingredient") },
-                            modifier = Modifier
-                                 .padding(4.dp)
-                                 .width(IntrinsicSize.Min)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("Ingrédients:")
+                        IconButton(onClick = {
+                            val updatedIngredients = copy.ingredients + Ingredient("", 0, "")
+                            copy = copy.copy(ingredients = updatedIngredients)
+                            onRecipeChange(copy)
+                        }) {
+                            Icon(Icons.Default.Add, contentDescription = "Ajouter un ingrédient")
+                        }
+                    }
+
+                    copy.ingredients.forEachIndexed { index, ing ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            OutlinedTextField(
+                                value = ing.name,
+                                onValueChange = { newName ->
+                                    val updated = copy.ingredients.toMutableList()
+                                    updated[index] = updated[index].copy(name = newName)
+                                    copy = copy.copy(ingredients = updated)
+                                    onRecipeChange(copy)
+                                },
+                                label = { Text("Ingredient") },
+                                modifier = Modifier
+                                    .padding(4.dp)
+                                    .weight(1f)
                             )
-                        OutlinedTextField(
-                            value = amount,
-                            onValueChange = { amount = it },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            label = { Text("Quantity") },
-                            modifier = Modifier
-                                .padding(4.dp)
-                                .width(IntrinsicSize.Min)
-                        )
-                        OutlinedTextField(
-                            value = unit,
-                            onValueChange = { unit = it },
-                            label = { Text("Unit") },
-                            modifier = Modifier
-                                .padding(4.dp)
-                                .width(IntrinsicSize.Min)
-                        )
+                            OutlinedTextField(
+                                value = ing.amount.toString(),
+                                onValueChange = { newAmountStr ->
+                                    val newAmount = newAmountStr.toIntOrNull()
+                                    if (newAmount != null) {
+                                        val updated = copy.ingredients.toMutableList()
+                                        updated[index] = updated[index].copy(amount = newAmount)
+                                        copy = copy.copy(ingredients = updated)
+                                        onRecipeChange(copy)
+                                    }
+                                },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                label = { Text("Quantity") },
+                                modifier = Modifier
+                                    .padding(4.dp)
+                                    .width(80.dp)
+                            )
+                            OutlinedTextField(
+                                value = ing.unit,
+                                onValueChange = { newUnit ->
+                                    val updated = copy.ingredients.toMutableList()
+                                    updated[index] = updated[index].copy(unit = newUnit)
+                                    copy = copy.copy(ingredients = updated)
+                                    onRecipeChange(copy)
+                                },
+                                label = { Text("Unit") },
+                                modifier = Modifier
+                                    .padding(4.dp)
+                                    .width(80.dp)
+                            )
+                            IconButton(
+                                onClick = {
+                                    val updated = copy.ingredients.toMutableList()
+                                    updated.removeAt(index)
+                                    copy = copy.copy(ingredients = updated)
+                                    onRecipeChange(copy)
+                                },
+                                modifier = Modifier.padding(start = 4.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Supprimer l'ingrédient",
+                                    tint = Color.Red
+                                )
+                            }
+                        }
                     }
                 }
 
@@ -272,23 +353,59 @@ fun ModifyScreen(
 
                 // Étapes
                 Column {
-                    Text("Étapes:")
-                    recipe.steps.forEachIndexed { index, etape ->
-                        var step by remember { mutableStateOf(etape) }
-                        OutlinedTextField(
-                            value = step,
-                            onValueChange = { step = it },
-                            modifier = Modifier
-                                .padding(4.dp)
-                                .fillMaxWidth()
-                        )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("Étapes:")
+                        IconButton(onClick = {
+                            val updatedSteps = copy.steps + ""
+                            copy = copy.copy(steps = updatedSteps)
+                            onRecipeChange(copy)
+                        }) {
+                            Icon(Icons.Default.Add, contentDescription = "Ajouter une étape")
+                        }
                     }
+
+                    copy.steps.forEachIndexed { index, etape ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                        ) {
+                            OutlinedTextField(
+                                value = etape,
+                                onValueChange = { newStep ->
+                                    val updated = copy.steps.toMutableList()
+                                    updated[index] = newStep
+                                    copy = copy.copy(steps = updated)
+                                    onRecipeChange(copy)
+                                },
+                                label = { Text("Étape ${index + 1}") },
+                                modifier = Modifier
+                                    .padding(4.dp)
+                                    .weight(1f)
+                            )
+                            IconButton(
+                                onClick = {
+                                    val updated = copy.steps.toMutableList()
+                                    updated.removeAt(index)
+                                    copy = copy.copy(steps = updated)
+                                    onRecipeChange(copy)
+                                },
+                                modifier = Modifier.padding(start = 4.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Supprimer l'étape",
+                                    tint = Color.Red
+                                )
+                            }
+                        }
+                    }
+
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Notes supplémentaires
-                var notes by remember { mutableStateOf(recipe.notes) }
+                var notes by remember { mutableStateOf(copy.notes) }
                 OutlinedTextField(
                     value = notes,
                     onValueChange = { notes = it },
@@ -307,12 +424,13 @@ fun Chip(text: String, onRemove: () -> Unit) {
     Row(
         modifier = Modifier
             .background(Color.LightGray, shape = RoundedCornerShape(12.dp))
-            .padding(8.dp)
-            .clickable { onRemove() },
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text, modifier = Modifier.padding(end = 4.dp))
-        Icon(Icons.Default.Close, contentDescription = "Supprimer", Modifier.size(16.dp))
+        IconButton(onClick = { onRemove() }) {
+            Icon(Icons.Default.Close, contentDescription = "Supprimer", Modifier.size(16.dp))
+        }
     }
 }
 
