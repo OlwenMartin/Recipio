@@ -131,34 +131,42 @@ fun ModifyScreen(
         ) {
             item {
                 //Choix catégorie (entrées, plats, dessert,...)
+                // État local pour gérer l'ouverture du menu déroulant
+                var expanded by remember { mutableStateOf(false) }
+
+                // Liste des catégories disponibles
+                val categories = listOf("Entrée", "Plat principal", "Dessert", "Autre")
+
+                // UI : sélection de la catégorie
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Catégorie : ")
-                    Text("Entrée")
+
+                    Text(
+                        text = copy.category,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+
                     IconButton(onClick = { expanded = !expanded }) {
-                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = "More options")
+                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Choisir une catégorie")
                     }
+
                     DropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        DropdownMenuItem(
-                            text = { Text("Entrée") },
-                            onClick = { /* Changement du Texte */ }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Plat principal") },
-                            onClick = { /* Changement du Texte */ }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Dessert") },
-                            onClick = { /* Changement du Texte */ }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Autre") },
-                            onClick = { /* Changement du Texte */ }
-                        )
+                        categories.forEach { category ->
+                            DropdownMenuItem(
+                                text = { Text(category) },
+                                onClick = {
+                                    copy = copy.copy(category = category)
+                                    onRecipeChange(copy)
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
                 }
+
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -441,6 +449,7 @@ fun ModifyScreenPreview(){
     val recipe = Recipe(
         R.drawable.exemple_image,
         true,
+        "Entrée",
         "Muffin",
         "c'est des muffins quoi",
         listOf("tag1","tag2"),

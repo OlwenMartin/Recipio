@@ -3,6 +3,7 @@ package com.example.recipio.data
 data class Recipe(
     var image : Int = 0,
     var isFavorite : Boolean = false,
+    var category : String = "",
     var name : String = "",
     var description : String = "",
     var tags : List<String> = listOf(),
