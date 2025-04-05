@@ -115,7 +115,9 @@ fun RecipeScreen(
         ) {
             item {
                 //Categorie
-                Text(text = recipe.category)
+                Text(text = "Categorie : " + recipe.category)
+
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Nom
                 OutlinedTextField(
@@ -175,6 +177,8 @@ fun RecipeScreen(
                     }) {
                         Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Augmenter")
                     }
+                    Text(" personnes")
+
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))

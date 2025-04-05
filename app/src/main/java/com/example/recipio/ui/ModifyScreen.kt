@@ -276,6 +276,7 @@ fun ModifyScreen(
                     }) {
                         Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Augmenter")
                     }
+                    Text(" personnes")
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
