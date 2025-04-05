@@ -114,6 +114,11 @@ fun RecipeScreen(
                 .padding(top = 8.dp)
         ) {
             item {
+                //Categorie
+                Text(text = "Categorie : " + recipe.category)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 // Nom
                 OutlinedTextField(
                     value = recipe.name,
@@ -172,6 +177,8 @@ fun RecipeScreen(
                     }) {
                         Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Augmenter")
                     }
+                    Text(" personnes")
+
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -248,6 +255,7 @@ fun Chip(text: String) {
 fun RecipeScreenPreview(){
     val recipe = Recipe(R.drawable.exemple_image,
         true,
+        "Entrée",
         "Muffin",
         "c'est des muffins quoi",
         listOf("tag1","tag2"),
