@@ -1,7 +1,12 @@
 package com.example.recipio
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -32,20 +37,68 @@ import java.io.File
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat.startActivityForResult
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.util.UUID
 
 class MainActivity : ComponentActivity() {
+
+    // Déclarez les variables comme lateinit ou lazy
+    private lateinit var sensorManager: SensorManager
+    private var proximitySensor: Sensor? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialisez sensorManager et proximitySensor ici
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY)
+
         enableEdgeToEdge()
         setContent {
             RecipioTheme {
                 //seedDatabase()
-                openGallery()
+                //openGallery()
                 RecipeApp()
             }
+        }
+    }
+
+    // Listener pour le capteur de proximité
+    private val proximitySensorEventListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent?) {
+            event?.let {
+                val maxRange = proximitySensor?.maximumRange ?: Float.MAX_VALUE
+                if (it.values[0] < maxRange) {
+                    // Geste détecté (main proche de l'écran)
+                    Log.i("RECIPIO", "Down")
+                } else {
+                    Log.i("RECIPIO", "Up")
+                }
+            }
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Vérifiez si le capteur est disponible avant d'enregistrer le listener
+        proximitySensor?.let {
+            sensorManager.registerListener(
+                proximitySensorEventListener,
+                it,
+                SensorManager.SENSOR_DELAY_NORMAL
+            )
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Désenregistrez le listener uniquement si le capteur est disponible
+        proximitySensor?.let {
+            sensorManager.unregisterListener(proximitySensorEventListener)
         }
     }
 
