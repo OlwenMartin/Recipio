@@ -51,7 +51,7 @@ class RecipeViewModel : ViewModel() {
                     description = document.getString("description") ?: "",
                     tags = document.get("tags") as? List<String> ?: listOf(),
                     steps = document.get("steps") as? List<String> ?: listOf(),
-                    ingredients = listOf(Ingredient("ing1", 30, "g")),
+                    ingredients = listOf(Ingredient("ing1", 30.0, "g")),
                     numberOfPeople = document.getLong("numberOfPeople")?.toInt() ?: 4,
                     time = document.getLong("time")?.toInt() ?: 30,
                     notes = document.getString("notes") ?: "",
