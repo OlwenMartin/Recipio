@@ -1,8 +1,6 @@
 package com.example.recipio.ui
 
 import android.util.Log
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getString
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipio.R
@@ -13,7 +11,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -33,7 +30,7 @@ class RecipeViewModel() : ViewModel(){
                     description = document.getString("description") ?: "",
                     tags = listOf("Vegan", "Vegetarian"),
                     steps = listOf("etape 1","etape 2"),
-                    ingredients = listOf(Ingredient("ing1",30,"g")),
+                    ingredients = listOf(Ingredient("ing1",30.0,"g")),
                     numberOfPeople = 4,
                     time = 30,
                     notes = "Notes supplémentaires",
