@@ -29,7 +29,7 @@ data class Recipe(
             "time" to time,
             "notes" to notes,
             "isFavorite" to isFavorite,
-            "userId" to (user?.uid ?: "") // Add the userId
+            "userId" to (user?.uid ?: "")
         )
     }
 }

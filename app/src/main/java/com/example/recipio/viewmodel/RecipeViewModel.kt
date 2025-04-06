@@ -17,12 +17,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-import androidx.lifecycle.viewModelScope
-import com.google.firebase.firestore.firestore
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-
 class RecipeViewModel : ViewModel() {
     private val _recipes = MutableStateFlow<List<Recipe>>(emptyList())
     private val _uiState = MutableStateFlow(RecipeUiState())
@@ -36,6 +30,12 @@ class RecipeViewModel : ViewModel() {
             _uiState.update { currentState ->
                 currentState.copy(recipes = recipes, filteredRecipes = recipes)
             }
+        }
+    }
+
+    fun selectRecipe(recipe: Recipe) {
+        _uiState.update { currentState ->
+            currentState.copy(selectedRecipe = recipe)
         }
     }
 
@@ -60,6 +60,7 @@ class RecipeViewModel : ViewModel() {
 
             result.documents.map { document ->
                 Recipe(
+                    id = document.id, //on ajoute l'id du document comme id de la recette
                     name = document.getString("name") ?: "",
                     description = document.getString("description") ?: "",
                     tags = document.get("tags") as? List<String> ?: listOf(),
