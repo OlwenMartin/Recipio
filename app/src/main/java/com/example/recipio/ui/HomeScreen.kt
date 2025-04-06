@@ -27,9 +27,10 @@ import com.example.recipio.viewmodel.RecipeViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import com.example.recipio.data.RecipeUiState
 
 @Composable
-fun HomeScreen(navController: NavHostController, viewModel: RecipeViewModel = viewModel()) {
+fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewModel: RecipeViewModel = viewModel()) {
     LaunchedEffect(Unit) {
         viewModel.getRecipes()
     }
@@ -86,9 +87,8 @@ fun HomeScreen(navController: NavHostController, viewModel: RecipeViewModel = vi
 
             //RecipeSection(title = "Récents", navController = navController)
             //RecipeSection(title = "Favoris", navController = navController)
-            val recipes = viewModel.recipes.toList()
-            RecipeSection(title = "Récents", navController = navController, recipes = recipes)
-            RecipeSection(title = "Favoris", navController = navController, recipes = recipes)
+            RecipeSection(title = "Récents", navController = navController, recipes = uiState.recipes)
+            RecipeSection(title = "Favoris", navController = navController, recipes = uiState.recipes)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -105,7 +105,7 @@ fun HomeScreen(navController: NavHostController, viewModel: RecipeViewModel = vi
                 }
             }
 
-            RecipeImageScrollSection(title = "Toutes les recettes", navController = navController)
+            RecipeImageScrollSection(title = "Toutes les recettes", uiState.recipes,navController = navController)
             Spacer(modifier = Modifier.height(10.dp))
         }
 
@@ -132,7 +132,7 @@ fun RecipeImageItem(imageRes: Int, navController: NavHostController) {
 }
 
 @Composable
-fun RecipeImageScrollSection(title: String, navController: NavHostController) {
+fun RecipeImageScrollSection(title: String, recipes: List<Recipe>, navController: NavHostController) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -157,9 +157,10 @@ fun RecipeImageScrollSection(title: String, navController: NavHostController) {
             )
         }
         LazyRow(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
-            items(List(10) { R.drawable.default_dish_image }) { imageRes ->
+
+            /*items(recipes.size, { R.drawable.default_dish_image }) { imageRes ->
                 RecipeImageItem(imageRes, navController)
-            }
+            }*/
         }
     }
 }
@@ -199,7 +200,7 @@ fun RecipeItem(recipe: Recipe, navController: NavHostController) {
             .size(120.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(Color.Gray)
-            .clickable { navController.navigate("recipe_detail/${recipe.name}") }
+            /*.clickable { navController.navigate("recipe_detail/${recipe.name}") }*/
     ) {
         Image(
             painter = painterResource(id = R.drawable.default_dish_image),

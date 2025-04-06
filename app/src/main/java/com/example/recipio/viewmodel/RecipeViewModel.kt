@@ -31,8 +31,11 @@ class RecipeViewModel : ViewModel() {
 
     fun getRecipes() {
         viewModelScope.launch {
-            val fetchedRecipes = fetchUserRecipes()
-            _recipes.value = fetchedRecipes
+            recipes  = fetchUserRecipes()
+
+            _uiState.update { currentState ->
+                currentState.copy(recipes = recipes, filteredRecipes = recipes)
+            }
         }
     }
 
