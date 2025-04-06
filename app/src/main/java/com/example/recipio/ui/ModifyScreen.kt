@@ -1,5 +1,6 @@
 package com.example.recipio.ui
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -56,7 +57,8 @@ fun ModifyScreen(
     recipe: Recipe,
     isNew: Boolean = false,
     onRecipeChange: (Recipe) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onSave: (Recipe) -> Unit
 ) {
     var copy by remember { mutableStateOf(recipe) }
     Column(
@@ -91,7 +93,24 @@ fun ModifyScreen(
                     Icon(Icons.Default.Delete, contentDescription = "Supprimer")
                 }
             }
-            IconButton(onClick = { /* Action sauvegarde */ }) {
+            IconButton(onClick = {
+                /*val recipe = Recipe(
+                    R.drawable.exemple_image,
+                    true,
+                    "Entrée",
+                    "Muffin",
+                    "c'est des muffins quoi",
+                    listOf("tag1","tag2"),
+                    listOf("tu fais la pate","tu met au four"),
+                    listOf(Ingredient("ing1",30.0,"g")),
+                    4,
+                    30,
+                    "notes en plus")*/
+
+                Log.d("RECIPIO", copy.toString())
+                onSave(copy)
+            })
+            {
                 Icon(Icons.Default.Check, contentDescription = "Sauvegarder")
             }
         }
@@ -168,10 +187,9 @@ fun ModifyScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Nom
-                var name by remember { mutableStateOf(copy.name) }
                 OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
+                    value = copy.name,
+                    onValueChange = { copy = copy.copy(name = it) },
                     label = { Text("Nom") },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -179,10 +197,9 @@ fun ModifyScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Description
-                var description by remember { mutableStateOf(copy.description) }
                 OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
+                    value = copy.description,
+                    onValueChange = { copy = copy.copy(description = it) },
                     label = { Text("Description") },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -208,7 +225,6 @@ fun ModifyScreen(
                                     if (newTag.isNotBlank()) {
                                         val updatedTags = copy.tags + newTag.trim()
                                         copy = copy.copy(tags = updatedTags)
-                                        onRecipeChange(copy)
                                         newTag = ""
                                     }
                                 }
@@ -240,10 +256,9 @@ fun ModifyScreen(
                 //Time
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Temps : ")
-                    var time by remember { mutableStateOf(copy.time.toString()) }
                     OutlinedTextField(
-                        value = time,
-                        onValueChange = { time = it },
+                        value = copy.time.toString(),
+                        onValueChange = { copy = copy.copy(time = it.toInt()) },
                         label = { Text("Time in minutes") },
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -256,20 +271,20 @@ fun ModifyScreen(
                 // Nombre de personnes
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Pour : ")
-                    var numberOfPeople by remember { mutableStateOf(copy.numberOfPeople.toString()) }
-                    var number:Int by remember { mutableStateOf(copy.numberOfPeople) }
+                    //var numberOfPeople by remember { mutableStateOf(copy.numberOfPeople.toString()) }
+                    var number:Int by remember { mutableStateOf(4) }
                     IconButton(onClick = {
                         if (number > 1) {
                             number--
-                            numberOfPeople = number.toString()
+                            copy = copy.copy(numberOfPeople =  number)
                         }
                     }) {
                         Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Diminuer")
                     }
-                    Text(text = numberOfPeople)
+                    Text(text = copy.numberOfPeople.toString())
                     IconButton(onClick = {
                         number++
-                        numberOfPeople = number.toString()
+                        copy = copy.copy(numberOfPeople =  number)
                     }) {
                         Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Augmenter")
                     }
@@ -411,10 +426,9 @@ fun ModifyScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Notes supplémentaires
-                var notes by remember { mutableStateOf(copy.notes) }
                 OutlinedTextField(
-                    value = notes,
-                    onValueChange = { notes = it },
+                    value = copy.notes,
+                    onValueChange = { copy = copy.copy(notes = it) },
                     label = { Text("Notes supplémentaires") },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -456,5 +470,5 @@ fun ModifyScreenPreview(){
         4,
         30,
         "notes en plus")
-    ModifyScreen(recipe, onRecipeChange = {}, modifier = Modifier)
+    ModifyScreen(recipe, onRecipeChange = {}, onSave = {}, modifier = Modifier)
 }

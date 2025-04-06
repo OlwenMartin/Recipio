@@ -28,14 +28,15 @@ class RecipeViewModel() : ViewModel(){
                 Recipe(
                     name = document.getString("name") ?: "",
                     description = document.getString("description") ?: "",
-                    tags = listOf("Vegan", "Vegetarian"),
-                    steps = listOf("etape 1","etape 2"),
+                    tags = document.get("tags") as? List<String> ?: listOf(),
+                    steps = document.get("steps+") as? List<String> ?: listOf(),
                     ingredients = listOf(Ingredient("ing1",30.0,"g")),
-                    numberOfPeople = 4,
-                    time = 30,
-                    notes = "Notes supplémentaires",
+                    numberOfPeople = document.getLong("numberOfPeople")?.toInt() ?: 0,
+                    time = document.getLong("time")?.toInt() ?: 0,
+                    notes = document.getString("notes").toString(),
                     image = R.drawable.exemple_image,
-                    isFavorite = false
+                    isFavorite = document.getBoolean("favorite") == true,//pour la valeur par défaut
+                    id = document.id
                 )
             }
         } catch (exception: Exception) {
@@ -59,5 +60,25 @@ class RecipeViewModel() : ViewModel(){
                 currentState.copy(recipes = recipes, filteredRecipes = recipes)
             }
         }
+    }
+
+    fun addRecipe(recipe: Recipe){
+        val db = Firebase.firestore
+
+        db.collection("recipes")
+            .add(recipe)
+            .addOnSuccessListener { documentReference ->
+                Log.d(
+                    "RECIPIO",
+                    "DocumentSnapshot added with ID: ${documentReference.id}"
+                )
+            }
+            .addOnFailureListener { e ->
+                Log.w(
+                    "RECIPIO",
+                    "Error adding document",
+                    e
+                )
+            }
     }
 }

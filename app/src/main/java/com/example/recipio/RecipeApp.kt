@@ -137,12 +137,16 @@ fun RecipeApp(
                             .fillMaxWidth())
                 }
                 composable(route = RecipeApp.Add.name) {
-                    ModifyScreen(recipe = Recipe(),isNew = true, onRecipeChange = {},modifier=Modifier
+                    ModifyScreen(
+                        recipe = Recipe(),
+                        isNew = true, onRecipeChange = {}, onSave = {recipe-> viewModel.addRecipe(recipe)},
+                        modifier =Modifier
                         .padding(top = 25.dp, start = 5.dp)
                         .fillMaxWidth())
                 }
                 composable(route = RecipeApp.Modify.name) {
-                    ModifyScreen(recipe = uiState.selectedRecipe, onRecipeChange = {}, modifier = Modifier
+                    ModifyScreen(
+                        recipe = uiState.selectedRecipe, onRecipeChange = {}, onSave = {recipe-> viewModel.addRecipe(recipe)}, modifier = Modifier
                         .padding(top = 25.dp, start = 5.dp)
                         .fillMaxWidth()
                     )
