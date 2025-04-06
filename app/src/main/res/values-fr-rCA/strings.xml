@@ -5,4 +5,6 @@
     <string name="home">Accueil</string>
     <string name="search_text">Rechercher...</string>
     <string name="recipe">Recette</string>
+    <string name="login">Connexion</string>
+    <string name="signup">Inscription</string>
 </resources>

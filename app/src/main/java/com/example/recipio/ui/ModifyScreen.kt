@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -94,19 +95,6 @@ fun ModifyScreen(
                 }
             }
             IconButton(onClick = {
-                /*val recipe = Recipe(
-                    R.drawable.exemple_image,
-                    true,
-                    "Entrée",
-                    "Muffin",
-                    "c'est des muffins quoi",
-                    listOf("tag1","tag2"),
-                    listOf("tu fais la pate","tu met au four"),
-                    listOf(Ingredient("ing1",30.0,"g")),
-                    4,
-                    30,
-                    "notes en plus")*/
-
                 Log.d("RECIPIO", copy.toString())
                 onSave(copy)
             })
@@ -225,6 +213,7 @@ fun ModifyScreen(
                                     if (newTag.isNotBlank()) {
                                         val updatedTags = copy.tags + newTag.trim()
                                         copy = copy.copy(tags = updatedTags)
+                                        onRecipeChange(copy)
                                         newTag = ""
                                     }
                                 }
@@ -271,7 +260,6 @@ fun ModifyScreen(
                 // Nombre de personnes
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Pour : ")
-                    //var numberOfPeople by remember { mutableStateOf(copy.numberOfPeople.toString()) }
                     var number:Int by remember { mutableStateOf(4) }
                     IconButton(onClick = {
                         if (number > 1) {
@@ -295,6 +283,7 @@ fun ModifyScreen(
 
                 // Ingrédients
                 Column {
+
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("Ingrédients:")
                         IconButton(onClick = {

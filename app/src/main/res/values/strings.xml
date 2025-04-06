@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Recipio</string>
     <string name="search">Search</string>
     <string name="home">Home</string>
@@ -6,4 +6,6 @@
     <string name="modify" translatable="false">Modify</string>
     <string name="search_text">Search...</string>
     <string name="recipe">Recipe</string>
+    <string name="login">Login</string>
+    <string name="signup">Sign up</string>
 </resources>
