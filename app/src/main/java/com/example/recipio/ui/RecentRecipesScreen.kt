@@ -66,10 +66,7 @@ fun RecentRecipesScreen(navController: NavHostController, viewModel: RecipeViewM
                         RecipeItem(
                             recipe = recipe,
                             navController = navController,
-                            onRecipeClick = {
-                                viewModel.selectRecipe(recipe)
-                                navController.navigate("RecipeApp.Recipe.name")
-                            }
+                            viewModel
                         )
                     }
                 }

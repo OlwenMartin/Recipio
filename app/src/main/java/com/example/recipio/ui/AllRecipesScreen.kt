@@ -68,11 +68,7 @@ fun AllRecipesScreen(
                         RecipeItem(
                             recipe = recipe,
                             navController = navController,
-                            onRecipeClick = {
-                                // Update selected recipe and navigate
-                                viewModel.selectRecipe(recipe)
-                                navController.navigate("RecipeApp.Recipe.name")
-                            }
+                            viewModel
                         )
                     }
                 }

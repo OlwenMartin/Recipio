@@ -57,7 +57,8 @@ enum class RecipeApp(@StringRes val title: Int){
     Add(title=R.string.add),
     Modify(title=R.string.modify),
     Login(title=R.string.login),
-    Signup(title=R.string.signup)
+    Signup(title=R.string.signup),
+    Splash(title=R.string.splash)
 }
 
 @Composable
@@ -76,7 +77,7 @@ fun RecipeApp(
 
     Scaffold(
         topBar = {
-            if (currentRoute != RecipeApp.Home.name && currentRoute != "Splash" && currentRoute != "Signup" && currentRoute != "Login") {
+            if (currentRoute != RecipeApp.Home.name && currentRoute != RecipeApp.Login.name && currentRoute != RecipeApp.Signup.name && currentRoute != RecipeApp.Splash.name) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
@@ -96,7 +97,7 @@ fun RecipeApp(
             }
         },
         bottomBar = {
-            val excludedRoutes = listOf("Splash", "Login", "Signup")
+            val excludedRoutes = listOf(RecipeApp.Login.name, RecipeApp.Signup.name, RecipeApp.Splash.name)
             if (currentRoute !in excludedRoutes) {
                 BottomNavigationBar(navController)
             }

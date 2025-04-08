@@ -8,4 +8,5 @@
     <string name="login">Connexion</string>
     <string name="signup">Inscription</string>
     <string name="add_image">Ajouter une image</string>
+    <string name="splash">Splash</string>
 </resources>

@@ -95,7 +95,7 @@ fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewMod
             )
 
             sections.forEach { (title, recipes) ->
-                RecipeSection(title = title, navController = navController, recipes = recipes)
+                RecipeSection(title = title, navController = navController, recipes = recipes, viewModel)
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
@@ -121,7 +121,7 @@ fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewMod
 }
 
 @Composable
-fun RecipeSection(title: String, navController: NavHostController, recipes : List<Recipe>) {
+fun RecipeSection(title: String, navController: NavHostController, recipes : List<Recipe>, viewModel: RecipeViewModel) {
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -147,7 +147,7 @@ fun RecipeSection(title: String, navController: NavHostController, recipes : Lis
         }
         LazyRow(modifier = Modifier.padding(start = 16.dp)) {
             items(recipes) { recipe ->
-                RecipeItem(recipe, navController)
+                RecipeItem(recipe, navController, viewModel)
             }
         }
     }
@@ -157,9 +157,7 @@ fun RecipeSection(title: String, navController: NavHostController, recipes : Lis
 fun RecipeItem(
     recipe: Recipe,
     navController: NavHostController,
-    onRecipeClick: () -> Unit = {
-        navController.navigate("recipe_detail/${recipe.id}")
-    }
+    viewModel: RecipeViewModel
 ) {
     Box(
     modifier = Modifier
@@ -168,7 +166,7 @@ fun RecipeItem(
         .clip(RoundedCornerShape(8.dp))
         .background(Color.Gray)
         .clickable {
-            //navController.navigate("recipe_detail/${recipe.id}")
+            viewModel.selectRecipe(recipe)
             navController.navigate(RecipeApp.Recipe.name)
         }
     ) {
