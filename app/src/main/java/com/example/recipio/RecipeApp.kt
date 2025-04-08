@@ -151,11 +151,15 @@ fun RecipeApp(
 
                     RecipeScreen(
                         recipe = uiState.selectedRecipe,
-                        onRecipeChange = {},
+                        onRecipeChange = {updatedRecipe ->
+                            viewModel.updateRecipe(updatedRecipe)},
                         onModifyClicked = { navController.navigate(RecipeApp.Modify.name) },
                         modifier = Modifier
                             .padding(top = 25.dp, start = 5.dp)
-                            .fillMaxWidth()
+                            .fillMaxWidth(),
+                        onFavoriteToggle = { recipeId ->
+                            viewModel.toggleFavorite(recipeId)
+                        },
                     )
                 }
                 composable(route = RecipeApp.Add.name) {

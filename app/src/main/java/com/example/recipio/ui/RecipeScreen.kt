@@ -56,7 +56,9 @@ fun RecipeScreen(
     onRecipeChange: (Recipe) -> Unit,
     onModifyClicked: (Recipe) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: RecipeViewModel = viewModel()
+    viewModel: RecipeViewModel = viewModel(),
+    onFavoriteToggle: (String) -> Unit = {},
+
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -76,7 +78,7 @@ fun RecipeScreen(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "name",
+                    text = recipe.name,
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF88B04B) // Vert clair
@@ -90,11 +92,14 @@ fun RecipeScreen(
                     Icon(Icons.Default.Create, contentDescription = "Modify")
                 }
                 IconButton(onClick = {
-                    favorite = !favorite
+                    if (recipe.id.isNotEmpty()) {
+                        onFavoriteToggle(recipe.id)
+                    }
                 }) {
                     Icon(
-                        imageVector = if (favorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = "Favori"
+                        imageVector = if (recipe.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = "Favori",
+                        tint = if (recipe.isFavorite) Color.Red else Color.Gray
                     )
                 }
             }

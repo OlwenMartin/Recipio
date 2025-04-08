@@ -245,12 +245,38 @@ class RecipeViewModel : ViewModel() {
                 Log.e("Recipio", "Erreur lors de la mise à jour", exception)
                 onError(exception)
             }
-            // In RecipeViewModel.kt - updateRecipe method
             .addOnSuccessListener {
                 Log.d("Recipio", "Recette mise à jour avec succès: ${recipe.id}, name: ${recipe.name}")
                 onSuccess()
             }
     }
+    fun toggleFavorite(recipeId: String) {
+        viewModelScope.launch {
+            try {
+                val db = Firebase.firestore
+                val recipe = _uiState.value.selectedRecipe
+                val updatedFavorite = !recipe.isFavorite
 
+                // Mettre à jour uniquement le champ isFavorite dans Firebase
+                db.collection("recipes")
+                    .document(recipeId)
+                    .update("isFavorite", updatedFavorite)
+                    .await()
+
+                // Mettre à jour l'état local
+                _uiState.update { currentState ->
+                    val updatedRecipe = currentState.selectedRecipe.copy(isFavorite = updatedFavorite)
+                    currentState.copy(selectedRecipe = updatedRecipe)
+                }
+
+                Log.d("Recipio", "Statut favori mis à jour avec succès: $recipeId, favori: $updatedFavorite")
+
+                // Rafraîchir la liste des recettes
+                getRecipes()
+            } catch (e: Exception) {
+                Log.e("Recipio", "Erreur lors de la mise à jour du statut favori", e)
+            }
+        }
+    }
 
 }
