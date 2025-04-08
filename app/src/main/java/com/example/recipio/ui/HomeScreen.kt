@@ -190,7 +190,8 @@ fun RecipeItem(
             .clip(RoundedCornerShape(8.dp))
             .background(Color.Gray)
             .clickable {
-                navController.navigate("recipe_detail/${recipe.id}")
+                //navController.navigate("recipe_detail/${recipe.id}")
+                navController.navigate(RecipeApp.Recipe.name)
             }
     ) {
         Image(
