@@ -1,9 +1,11 @@
 package com.example.recipio.data
 
+import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 
 data class Recipe(
-    var image: Int = 0,
+    var imageUri: Uri = Uri.EMPTY,
+    var imageUrl: String = "",
     var isFavorite: Boolean = false,
     var category: String = "",
     var name: String = "",
@@ -20,6 +22,7 @@ data class Recipe(
     fun toMap(): Map<String, Any> {
         val user = FirebaseAuth.getInstance().currentUser
         return mapOf(
+            "image_url" to imageUrl,
             "name" to name,
             "description" to description,
             "tags" to tags,

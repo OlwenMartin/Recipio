@@ -7,4 +7,5 @@
     <string name="recipe">Recette</string>
     <string name="login">Connexion</string>
     <string name="signup">Inscription</string>
+    <string name="add_image">Ajouter une image</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.example.recipio.ui
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -97,9 +98,9 @@ fun RecipeScreen(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            Image(
-                if(recipe.image != 0) {
-                    painterResource(id = recipe.image)
+            /*Image(
+                if(recipe.imageUri != Uri.EMPTY) {
+                    painterResource(id = recipe.imageUri)
 
                 } else {
                     painterResource(id = R.drawable.default_dish_image)
@@ -109,7 +110,7 @@ fun RecipeScreen(
                     .size(120.dp)
                     .clip(RoundedCornerShape(12.dp)),
                 contentScale = ContentScale.Crop
-            )
+            )*/
         }
 
         // Partie scrollable
@@ -268,7 +269,8 @@ fun Chip(text: String) {
 @Preview
 @Composable
 fun RecipeScreenPreview(){
-    val recipe = Recipe(R.drawable.exemple_image,
+    val recipe = Recipe(Uri.EMPTY,
+        "",
         true,
         "Entrée",
         "Muffin",

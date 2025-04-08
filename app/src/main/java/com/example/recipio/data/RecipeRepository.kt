@@ -1,5 +1,6 @@
 package com.example.recipio.data
 
+import android.net.Uri
 import com.example.recipio.R
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +20,7 @@ class RecipeRepository {
                 Recipe(
                     name = doc.getString("name") ?: "",
                     description = doc.getString("description") ?: "",
-                    image = R.drawable.default_dish_image,
+                    imageUri = Uri.EMPTY,
                     isFavorite = doc.getBoolean("isFavorite") ?: false,
                     tags = doc.get("tags") as? List<String> ?: listOf(),
                     steps = doc.get("steps") as? List<String> ?: listOf(),

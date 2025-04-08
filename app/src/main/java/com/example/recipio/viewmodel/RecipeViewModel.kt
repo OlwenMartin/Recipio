@@ -1,5 +1,6 @@
 package com.example.recipio.viewmodel
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,10 +19,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 
 class RecipeViewModel : ViewModel() {
     private val _recipes = MutableStateFlow<List<Recipe>>(emptyList())
@@ -68,7 +72,7 @@ class RecipeViewModel : ViewModel() {
                     numberOfPeople = document.getLong("numberOfPeople")?.toInt() ?: 4,
                     time = document.getLong("time")?.toInt() ?: 30,
                     notes = document.getString("notes") ?: "",
-                    image = R.drawable.default_dish_image, // juste pour tester: default image
+                    imageUri = Uri.EMPTY, // juste pour tester: default image
                     isFavorite = document.getBoolean("isFavorite") ?: false
                 )
             }
@@ -79,23 +83,40 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
-    /*fun addRandomRecipe() {
-        val randomRecipe = Recipe(
-            name = "Recette aléatoire",
-            description = "Une recette ajoutée au hasard",
-            image = R.drawable.default_dish_image
-        )
+    fun uploadImage(imageUri : Uri) : Task<String> {
+        val storage = FirebaseStorage.getInstance()
+        val storageRef = storage.reference
+        var value = ""
+        val fileRef = storageRef.child("images/${UUID.randomUUID()}.jpg")
 
-        addRecipe(randomRecipe)
-    }*/
+        return fileRef.putFile(imageUri)
+            .continueWithTask { task ->
+                if (!task.isSuccessful) {
+                    throw task.exception ?: Exception("Upload failed")
+                }
+                fileRef.downloadUrl
+            }.continueWith { it.result.toString() }
 
-    /*fun addRecipe(recipe: Recipe) {
-        val updatedList = _recipes.value.toMutableList()
-        updatedList.add(recipe)
-        _recipes.value = updatedList
-    }*/
+        /*if (imageUri != null) {
+            val fileRef = storageRef.child("images/${UUID.randomUUID()}.jpg")
 
-    fun addRecipeToUser(recipe: Recipe) {
+            fileRef.putFile(imageUri!!)
+                .addOnSuccessListener {
+                    fileRef.downloadUrl.addOnSuccessListener { uri ->
+                        Log.d("RECIPIO", "Image uploaded. Download URL: $uri")
+                        value = uri.toString()
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("RECIPIO", "Upload failed", e)
+                }
+        } else {
+            Log.e("RECIPIO", "No image selected")
+        }
+        return value*/
+    }
+
+     fun addRecipeToUser(recipe: Recipe) {
         val user = FirebaseAuth.getInstance().currentUser
         val db = Firebase.firestore
 
@@ -103,10 +124,12 @@ class RecipeViewModel : ViewModel() {
             Log.w("Recipio", "Utilisateur non authentifié.")
             return
         }
-
-        viewModelScope.launch {
-            try {
-                val recipeWithUserId = recipe.copy()
+         viewModelScope.launch {
+             try {
+                if (recipe.imageUri != null) {
+                    val imageUrl = uploadImage(recipe.imageUri).await()
+                    recipe.imageUrl = imageUrl
+                }
 
                 // Ajout de la recette à la collection "recipes"
                 val recipeRef = db.collection("recipes").add(recipe.toMap()).await()
@@ -125,66 +148,10 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
-    /*suspend fun fetchRecipes(): List<Recipe> {
-        val db = Firebase.firestore
-        return try {
-            val result = db.collection("recipes").get().await()
-            result.documents.map { document ->
-                Recipe(
-                    name = document.getString("name") ?: "",
-                    description = document.getString("description") ?: "",
-                    tags = document.get("tags") as? List<String> ?: listOf(),
-                    steps = document.get("steps+") as? List<String> ?: listOf(),
-                    ingredients = listOf(Ingredient("ing1",30.0,"g")),
-                    numberOfPeople = document.getLong("numberOfPeople")?.toInt() ?: 0,
-                    time = document.getLong("time")?.toInt() ?: 0,
-                    notes = document.getString("notes").toString(),
-                    image = R.drawable.exemple_image,
-                    isFavorite = document.getBoolean("favorite") == true,//pour la valeur par défaut
-                    id = document.id
-                )
-            }
-        } catch (exception: Exception) {
-            Log.w("Recipio", "Error getting documents.", exception)
-            emptyList()
-        }
-    }*/
-
     fun filterRecipes(filter : String){
         val filteredList = recipes.filter { it.name.startsWith(filter) }
         _uiState.update { currentState ->
             currentState.copy(filteredRecipes = filteredList)
         }
     }
-
-    /*fun getRecipes() {
-        viewModelScope.launch {
-            recipes  = fetchRecipes()
-
-            _uiState.update { currentState ->
-                currentState.copy(recipes = recipes, filteredRecipes = recipes)
-            }
-        }
-    }*/
-
-    /*fun addRecipe(recipe: Recipe){
-        val db = Firebase.firestore
-
-        db.collection("recipes")
-            .add(recipe)
-            .addOnSuccessListener { documentReference ->
-                Log.d(
-                    "RECIPIO",
-                    "DocumentSnapshot added with ID: ${documentReference.id}"
-
-                )
-            }
-            .addOnFailureListener { e ->
-                Log.w(
-                    "RECIPIO",
-                    "Error adding document",
-                    e
-                )
-            }
-    }*/
 }

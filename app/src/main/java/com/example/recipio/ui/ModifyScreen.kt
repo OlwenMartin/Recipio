@@ -1,6 +1,13 @@
 package com.example.recipio.ui
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -42,16 +49,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat.startActivityForResult
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.recipio.R
 import com.example.recipio.data.Ingredient
 import com.example.recipio.data.Recipe
+import com.google.firebase.storage.FirebaseStorage
+import java.util.UUID
 
 @Composable
 fun ModifyScreen(
@@ -103,26 +117,40 @@ fun ModifyScreen(
             }
         }
 
+        val context = LocalContext.current
+
+        // Variable pour stocker l'URI de l'image sélectionnée
+        var imageUri by remember { mutableStateOf<Uri?>(null) }
+        var bitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
+
+        // Launcher pour ouvrir le sélecteur d'images
+        val launcher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent()
+        ) { uri: Uri? ->
+            imageUri = uri
+
+            // Charger l'image en bitmap si une URI est sélectionnée
+            uri?.let {
+                copy = copy.copy(imageUri = uri)
+            }
+            }
         // Image modifiable
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { /* TODO: Ajouter un sélecteur d'image */ },
+                .clickable { launcher.launch("image/*") },
             contentAlignment = Alignment.Center
         ) {
-            Image(
-                if(copy.image != 0) {
-                    painterResource(id = copy.image)
-
-                } else {
-                    painterResource(id = R.drawable.default_dish_image)
-                },
-                contentDescription = "Dish Image",
-                modifier = Modifier
-                    .size(140.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-                contentScale = ContentScale.Crop
-            )
+            if(copy.imageUri != Uri.EMPTY) {
+                AsyncImage(
+                    model = copy.imageUri,
+                    contentDescription = "Image chargée depuis une URI",
+                    modifier = Modifier.size(200.dp)
+                )
+            }
+            else{
+                Text(stringResource(R.string.add_image))
+            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -377,7 +405,9 @@ fun ModifyScreen(
                     copy.steps.forEachIndexed { index, etape ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
                         ) {
                             OutlinedTextField(
                                 value = etape,
@@ -428,6 +458,7 @@ fun ModifyScreen(
     }
 }
 
+
 @Composable
 fun Chip(text: String, onRemove: () -> Unit) {
     Row(
@@ -448,7 +479,8 @@ fun Chip(text: String, onRemove: () -> Unit) {
 @Composable
 fun ModifyScreenPreview(){
     val recipe = Recipe(
-        R.drawable.exemple_image,
+        Uri.EMPTY,
+        "",
         true,
         "Entrée",
         "Muffin",
