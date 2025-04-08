@@ -25,19 +25,15 @@ import com.example.recipio.RecipeApp
 import com.example.recipio.data.Recipe
 import com.example.recipio.viewmodel.RecipeViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import com.example.recipio.data.RecipeUiState
 
 @Composable
 fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewModel: RecipeViewModel = viewModel()) {
-    //might cause unnecessary network/database calls
-    /*LaunchedEffect(Unit) {
-        viewModel.getRecipes()
-    }*/
 
-    LaunchedEffect(key1 = true) {
-        if (uiState.recipes.isEmpty()) viewModel.getRecipes()
+    LaunchedEffect(uiState.recipes.size) {
+        if (uiState.recipes.isEmpty()) {
+            viewModel.getRecipes()
+        }
     }
 
     Column(
@@ -119,10 +115,9 @@ fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewMod
             Spacer(modifier = Modifier.height(10.dp))
         }
 
-        BottomNavigationBar(navController)
     }
 }
-
+/*
 @Composable
 fun RecipeImageItem(imageRes: Int, navController: NavHostController) {
     Box(
@@ -139,7 +134,7 @@ fun RecipeImageItem(imageRes: Int, navController: NavHostController) {
             modifier = Modifier.fillMaxSize()
         )
     }
-}
+}*/
 
 @Composable
 fun RecipeSection(title: String, navController: NavHostController, recipes : List<Recipe>) {
@@ -149,7 +144,6 @@ fun RecipeSection(title: String, navController: NavHostController, recipes : Lis
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp)
-                //.clickable { navController.navigate("all_recipes") },
                 .clickable {
                     when (title) {
                         "Favoris" -> navController.navigate("favorite_recipes")
@@ -180,52 +174,23 @@ fun RecipeItem(
     recipe: Recipe,
     navController: NavHostController,
     onRecipeClick: () -> Unit = {
-        //  implementation par défaut
         navController.navigate("recipe_detail/${recipe.id}")
     }
 ) {    Box(
-        modifier = Modifier
-            .padding(8.dp)
-            .size(120.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(Color.Gray)
-            .clickable {
-                //navController.navigate("recipe_detail/${recipe.id}")
-                navController.navigate(RecipeApp.Recipe.name)
-            }
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.default_dish_image),
-            contentDescription = recipe.name,
-            modifier = Modifier.fillMaxSize()
-        )
-    }
-}
-
-@Composable
-fun BottomNavigationBar(navController: NavHostController) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color(0xFFB6D08F))
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceAround
-    ) {
-        listOf("Entrée", "Plats", "Desserts", "Autres").forEach {
-            Text(
-                text = it,
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.clickable {
-                    navController.navigate(RecipeApp.Search.name)
-                }
-            )
+    modifier = Modifier
+        .padding(8.dp)
+        .size(120.dp)
+        .clip(RoundedCornerShape(8.dp))
+        .background(Color.Gray)
+        .clickable {
+            //navController.navigate("recipe_detail/${recipe.id}")
+            navController.navigate(RecipeApp.Recipe.name)
         }
-        Icon(
-            painter = painterResource(id = R.drawable.baseline_display_settings_24),
-            contentDescription = "settings",
-            modifier = Modifier.size(30.dp)
-        )
-    }
+) {
+    Image(
+        painter = painterResource(id = R.drawable.default_dish_image),
+        contentDescription = recipe.name,
+        modifier = Modifier.fillMaxSize()
+    )
+}
 }

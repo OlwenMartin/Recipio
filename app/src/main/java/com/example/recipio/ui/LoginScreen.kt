@@ -25,10 +25,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.recipio.R
+import com.example.recipio.viewmodel.RecipeViewModel
 import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(
+    onLoginSuccess: () -> Unit = {},
+    viewModel: RecipeViewModel = viewModel(),
+    navController: NavController) {
     val context = LocalContext.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -41,7 +46,9 @@ fun LoginScreen(navController: NavController) {
             .addOnCompleteListener { task ->
                 loading = false
                 if (task.isSuccessful) {
+                    viewModel.getRecipes()
                     Toast.makeText(context, "Connexion réussie!", Toast.LENGTH_SHORT).show()
+                    onLoginSuccess()
                     navController.navigate("Home")
                 } else {
                     Toast.makeText(context, "Échec de connexion: ${task.exception?.localizedMessage}", Toast.LENGTH_LONG).show()

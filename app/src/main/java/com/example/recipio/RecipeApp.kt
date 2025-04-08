@@ -3,14 +3,16 @@ package com.example.recipio
 import HomeScreen
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,7 +32,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.recipio.viewmodel.RecipeViewModel
 import com.example.recipio.ui.SearchScreen
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.recipio.data.Recipe
@@ -45,7 +46,8 @@ import com.example.recipio.ui.SplashScreen
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-
+import androidx.compose.ui.text.font.FontWeight
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 enum class RecipeApp(@StringRes val title: Int){
     Start(title = R.string.app_name),
@@ -94,48 +96,29 @@ fun RecipeApp(
             }
         },
         bottomBar = {
-            BottomAppBar(containerColor = Color(0xFF9bc268)) {
-                Button(
-                    onClick = {navController.navigate(RecipeApp.Home.name)}
-                ) {
-                    Text(stringResource(R.string.home), fontSize = 20.sp)
-                }
-                Button(
-                    onClick = {
-                        viewModel.getRecipes()
-                        navController.navigate(RecipeApp.Search.name)
-                    }
-                ) {
-                    Text(stringResource(R.string.search), fontSize = 20.sp)
-                }
-                Button(
-                    onClick = {navController.navigate(RecipeApp.Recipe.name)}
-                ) {
-                    Text(stringResource(R.string.recipe), fontSize = 20.sp)
-                }
-                Button(
-                    onClick = {navController.navigate(RecipeApp.Add.name)}
-                ) {
-                    Text(stringResource(R.string.add), fontSize = 20.sp)
-                }
-            }
+            BottomNavigationBar(navController)
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                //je décommente pcq empêche l’arrière-plan de couvrir toute la largeur de l’écran
-                //.padding(top = 25.dp, start = 5.dp)
                 .fillMaxWidth()
         ) {
             NavHost(
                 navController = navController,
-                //startDestination = RecipeApp.Home.name,
                 startDestination = "Splash",
                 modifier = Modifier.padding(innerPadding)
             ) {
 
                 composable(route = RecipeApp.Login.name) {
-                    LoginScreen(navController)
+                    LoginScreen(
+                        onLoginSuccess = {
+                            viewModel.getRecipes() // Charge les recettes immédiatement après connexion
+                            navController.navigate(RecipeApp.Home.name) {
+                                popUpTo(RecipeApp.Login.name) { inclusive = true }
+                            }
+                        },
+                        navController = navController
+                    )
                 }
 
                 composable(route = "Splash") {
@@ -150,29 +133,39 @@ fun RecipeApp(
                     HomeScreen(navController, uiState)
                 }
                 composable(route = RecipeApp.Search.name) {
-                    SearchScreen(recipes = uiState.filteredRecipes, onValueChanged = {filter -> viewModel.filterRecipes(filter)})
+                    SearchScreen(
+                        recipes = uiState.filteredRecipes,
+                        onValueChanged = { filter -> viewModel.filterRecipes(filter) })
                 }
                 composable(route = RecipeApp.Recipe.name) {
-                    RecipeScreen(recipe = uiState.selectedRecipe,
+                    RecipeScreen(
+                        recipe = uiState.selectedRecipe,
                         onRecipeChange = {},
-                        onModifyClicked = {navController.navigate(RecipeApp.Modify.name)},
-                        modifier=Modifier
+                        onModifyClicked = { navController.navigate(RecipeApp.Modify.name) },
+                        modifier = Modifier
                             .padding(top = 25.dp, start = 5.dp)
-                            .fillMaxWidth())
+                            .fillMaxWidth()
+                    )
                 }
                 composable(route = RecipeApp.Add.name) {
                     ModifyScreen(
                         recipe = Recipe(),
-                        isNew = true, onRecipeChange = {}, onSave = {recipe-> viewModel.addRecipeToUser(recipe)},
-                        modifier =Modifier
-                        .padding(top = 25.dp, start = 5.dp)
-                        .fillMaxWidth())
+                        isNew = true,
+                        onRecipeChange = {},
+                        onSave = { recipe -> viewModel.addRecipeToUser(recipe) },
+                        modifier = Modifier
+                            .padding(top = 25.dp, start = 5.dp)
+                            .fillMaxWidth()
+                    )
                 }
                 composable(route = RecipeApp.Modify.name) {
                     ModifyScreen(
-                        recipe = uiState.selectedRecipe, onRecipeChange = {}, onSave = {recipe-> viewModel.addRecipeToUser(recipe)}, modifier = Modifier
-                        .padding(top = 25.dp, start = 5.dp)
-                        .fillMaxWidth()
+                        recipe = uiState.selectedRecipe,
+                        onRecipeChange = {},
+                        onSave = { recipe -> viewModel.addRecipeToUser(recipe) },
+                        modifier = Modifier
+                            .padding(top = 25.dp, start = 5.dp)
+                            .fillMaxWidth()
                     )
                 }
                 composable(route = "recent_recipes") {
@@ -185,6 +178,63 @@ fun RecipeApp(
                     AllRecipesScreen(navController)
                 }
             }
+        }
+    }
+}
+@Composable
+fun BottomNavigationBar(navController: NavHostController) {
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
+
+    BottomAppBar(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = Color(0xFFB6D08F),
+        tonalElevation = 4.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Catégories de recettes avec la même structure
+            listOf("Entrée", "Plats", "Desserts", "Autres").forEach { category ->
+                Text(
+                    text = category,
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable { navController.navigate(RecipeApp.Search.name) }
+                        .padding(vertical = 4.dp, horizontal = 8.dp)
+                )
+            }
+
+            // Icône paramètres
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_display_settings_24),
+                contentDescription = "Settings",
+                tint = Color.White,
+                modifier = Modifier
+                    .size(30.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .padding(2.dp)
+            )
+
+            // Icône accueil
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_home_24),
+                contentDescription = "Home",
+                tint = if (currentRoute == RecipeApp.Home.name) Color(0xFF436118) else Color.White,
+                modifier = Modifier
+                    .size(30.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable { navController.navigate(RecipeApp.Home.name) }
+                    .padding(2.dp)
+            )
         }
     }
 
