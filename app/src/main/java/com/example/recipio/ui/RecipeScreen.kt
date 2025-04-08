@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.recipio.R
 import com.example.recipio.data.Ingredient
 import com.example.recipio.data.Recipe
@@ -98,19 +99,14 @@ fun RecipeScreen(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            /*Image(
-                if(recipe.imageUri != Uri.EMPTY) {
-                    painterResource(id = recipe.imageUri)
 
-                } else {
-                    painterResource(id = R.drawable.default_dish_image)
-                },
-                contentDescription = "Dish Image",
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-                contentScale = ContentScale.Crop
-            )*/
+            if(recipe.imageUrl != "") {
+                AsyncImage(
+                    model = recipe.imageUrl,
+                    contentDescription = "Image chargée depuis une URI",
+                    modifier = Modifier.size(200.dp)
+                )
+            }
         }
 
         // Partie scrollable

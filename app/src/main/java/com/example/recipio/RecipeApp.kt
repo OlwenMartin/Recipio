@@ -141,7 +141,13 @@ fun RecipeApp(
                         recipes = uiState.filteredRecipes,
                         onValueChanged = { filter -> viewModel.filterRecipes(filter) })
                 }
-                composable(route = RecipeApp.Recipe.name) {
+                composable(route = "${RecipeApp.Recipe.name}/{recipeId}") { backStackEntry ->
+                    val recipeId = backStackEntry.arguments?.getString("recipeId")
+                    LaunchedEffect(recipeId) {
+                        if (recipeId != null) {
+                            viewModel.getRecipe(recipeId) // Appelle selectRecipe avec l'ID
+                        }
+                    }
                     RecipeScreen(
                         recipe = uiState.selectedRecipe,
                         onRecipeChange = {},

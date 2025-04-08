@@ -167,7 +167,7 @@ fun RecipeItem(
         .background(Color.Gray)
         .clickable {
             viewModel.selectRecipe(recipe)
-            navController.navigate(RecipeApp.Recipe.name)
+            navController.navigate("${RecipeApp.Recipe.name}/${recipe.id}")
         }
     ) {
         if(recipe.imageUrl != "") {

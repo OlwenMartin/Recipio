@@ -37,6 +37,11 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
+    fun getRecipe(recipeId: String) {
+        val selected = recipes.find { it.id == recipeId }
+        _uiState.value = _uiState.value.copy(selectedRecipe = selected ?: Recipe())
+    }
+
     fun selectRecipe(recipe: Recipe) {
         _uiState.update { currentState ->
             currentState.copy(selectedRecipe = recipe)
