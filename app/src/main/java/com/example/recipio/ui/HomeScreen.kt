@@ -1,3 +1,4 @@
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,6 +26,7 @@ import com.example.recipio.RecipeApp
 import com.example.recipio.data.Recipe
 import com.example.recipio.viewmodel.RecipeViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.recipio.data.RecipeUiState
 
 @Composable
@@ -117,24 +119,6 @@ fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewMod
 
     }
 }
-/*
-@Composable
-fun RecipeImageItem(imageRes: Int, navController: NavHostController) {
-    Box(
-        modifier = Modifier
-            .padding(8.dp)
-            .size(120.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(colorResource(id = R.color.green))
-            .clickable { navController.navigate(RecipeApp.Recipe.name) }
-    ) {
-        Image(
-            painter = painterResource(id = imageRes),
-            contentDescription = "Recette",
-            modifier = Modifier.fillMaxSize()
-        )
-    }
-}*/
 
 @Composable
 fun RecipeSection(title: String, navController: NavHostController, recipes : List<Recipe>) {
@@ -176,7 +160,8 @@ fun RecipeItem(
     onRecipeClick: () -> Unit = {
         navController.navigate("recipe_detail/${recipe.id}")
     }
-) {    Box(
+) {
+    Box(
     modifier = Modifier
         .padding(8.dp)
         .size(120.dp)
@@ -186,11 +171,20 @@ fun RecipeItem(
             //navController.navigate("recipe_detail/${recipe.id}")
             navController.navigate(RecipeApp.Recipe.name)
         }
-) {
-    Image(
-        painter = painterResource(id = R.drawable.default_dish_image),
-        contentDescription = recipe.name,
-        modifier = Modifier.fillMaxSize()
-    )
-}
+    ) {
+        if(recipe.imageUrl != "") {
+            AsyncImage(
+                model = recipe.imageUrl,
+                contentDescription = "Image chargée depuis une URI",
+                modifier = Modifier.size(200.dp)
+            )
+        }
+        else {
+            Image(
+                painter = painterResource(id = R.drawable.default_dish_image),
+                contentDescription = recipe.name,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    }
 }

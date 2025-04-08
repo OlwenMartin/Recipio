@@ -73,7 +73,7 @@ class RecipeViewModel : ViewModel() {
                     numberOfPeople = document.getLong("numberOfPeople")?.toInt() ?: 4,
                     time = document.getLong("time")?.toInt() ?: 30,
                     notes = document.getString("notes") ?: "",
-                    imageUri = Uri.EMPTY, // juste pour tester: default image
+                    imageUrl = document.getString("image_url") ?: "",
                     isFavorite = document.getBoolean("isFavorite") ?: false
                 )
             }
