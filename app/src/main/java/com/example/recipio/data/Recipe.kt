@@ -32,6 +32,7 @@ data class Recipe(
             "time" to time,
             "notes" to notes,
             "isFavorite" to isFavorite,
+            "category" to category,
             "userId" to (user?.uid ?: "")
         )
     }

@@ -27,6 +27,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,18 +43,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.recipio.R
 import com.example.recipio.data.Ingredient
 import com.example.recipio.data.Recipe
+import com.example.recipio.viewmodel.RecipeViewModel
 
 @Composable
 fun RecipeScreen(
     recipe: Recipe,
     onRecipeChange: (Recipe) -> Unit,
     onModifyClicked: (Recipe) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: RecipeViewModel = viewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
     Column(
         modifier = modifier
             .fillMaxSize()

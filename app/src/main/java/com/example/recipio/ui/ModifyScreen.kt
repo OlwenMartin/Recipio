@@ -68,8 +68,6 @@ import com.example.recipio.RecipeApp
 import com.example.recipio.data.Ingredient
 import com.example.recipio.data.Recipe
 import com.example.recipio.viewmodel.RecipeViewModel
-import com.google.firebase.storage.FirebaseStorage
-import java.util.UUID
 
 @Composable
 fun ModifyScreen(
@@ -121,14 +119,20 @@ fun ModifyScreen(
                 viewModel.updateRecipe(copy,
                     onSuccess = {
                         Toast.makeText(context, "Recette sauvegardée", Toast.LENGTH_SHORT).show()
+
+                        // Reload all recipes
+                        viewModel.getRecipes()
+
+                        // Force update the selected recipe
                         viewModel.selectRecipe(copy)
-                        Log.d("NAVIGATION", "Navigating to recipe/${copy.id}")
 
                         navController.navigate("${RecipeApp.Recipe.name}/${copy.id}") {
                             popUpTo(RecipeApp.Modify.name) { inclusive = true }
                         }
                     },
-                    onError = { e -> Toast.makeText(context, "Erreur: ${e.message}", Toast.LENGTH_LONG).show() }
+                    onError = { e ->
+                        Toast.makeText(context, "Erreur: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
                 )
             })
             {
@@ -136,7 +140,6 @@ fun ModifyScreen(
             }
         }
 
-        // Variable pour stocker l'URI de l'image sélectionnée
         var imageUri by remember { mutableStateOf<Uri?>(null) }
         var bitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
 

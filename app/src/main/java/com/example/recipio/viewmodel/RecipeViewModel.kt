@@ -4,7 +4,6 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.recipio.R
 import com.example.recipio.data.Ingredient
 import com.example.recipio.data.Recipe
 import com.example.recipio.data.RecipeUiState
@@ -38,9 +37,51 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
+    /*
     fun getRecipe(recipeId: String) {
         val selected = recipes.find { it.id == recipeId }
         _uiState.value = _uiState.value.copy(selectedRecipe = selected ?: Recipe())
+    }
+     */
+    //J'ai du modifer getRecipe pour l'utiliser dans modifyscreen
+    fun getRecipe(recipeId: String) {
+        viewModelScope.launch {
+            val db = Firebase.firestore
+            try {
+                val document = db.collection("recipes").document(recipeId).get().await()
+                if (document.exists()) {
+                    val recipe = Recipe(
+                        id = document.id,
+                        name = document.getString("name") ?: "",
+                        description = document.getString("description") ?: "",
+                        tags = document.get("tags") as? List<String> ?: listOf(),
+                        steps = document.get("steps") as? List<String> ?: listOf(),
+                        ingredients = listOf(Ingredient("ing1", 30.0, "g")), // You might need to update this
+                        numberOfPeople = document.getLong("numberOfPeople")?.toInt() ?: 4,
+                        time = document.getLong("time")?.toInt() ?: 30,
+                        notes = document.getString("notes") ?: "",
+                        imageUrl = document.getString("image_url") ?: "",
+                        isFavorite = document.getBoolean("isFavorite") ?: false,
+                        category = document.getString("category") ?: ""
+                    )
+
+                    Log.d("Recipio", "Fetched recipe: ${recipe.id}, name: ${recipe.name}")
+                    _uiState.update { currentState ->
+                        currentState.copy(selectedRecipe = recipe)
+                    }
+                } else {
+                    Log.w("Recipio", "Recipe document not found: $recipeId")
+                    _uiState.update { currentState ->
+                        currentState.copy(selectedRecipe = Recipe())
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("Recipio", "Error fetching recipe by ID", e)
+                _uiState.update { currentState ->
+                    currentState.copy(selectedRecipe = Recipe())
+                }
+            }
+        }
     }
 
     fun selectRecipe(recipe: Recipe) {
@@ -145,6 +186,7 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
+    /*
     fun updateRecipe(recipe: Recipe, onSuccess: () -> Unit = {}, onError: (Exception) -> Unit = {}) {
         val db = Firebase.firestore
         val user = FirebaseAuth.getInstance().currentUser
@@ -173,5 +215,42 @@ class RecipeViewModel : ViewModel() {
                 onError(exception)
             }
     }
+
+     */
+    //J'ai du modifer updateRecipe pour l'utiliser dans modifyscreen
+    fun updateRecipe(recipe: Recipe, onSuccess: () -> Unit = {}, onError: (Exception) -> Unit = {}) {
+        val db = Firebase.firestore
+        val user = FirebaseAuth.getInstance().currentUser
+
+        if (user == null) {
+            Log.w("Recipio", "Utilisateur non authentifié.")
+            onError(Exception("Utilisateur non authentifié"))
+            return
+        }
+
+        val recipeId = recipe.id
+        if (recipeId.isBlank()) {
+            Log.w("Recipio", "ID de la recette manquant.")
+            onError(Exception("ID de la recette manquant"))
+            return
+        }
+
+        db.collection("recipes").document(recipeId)
+            .set(recipe.toMap(), SetOptions.merge())
+            .addOnSuccessListener {
+                Log.d("Recipio", "Recette mise à jour avec succès")
+                onSuccess()
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Recipio", "Erreur lors de la mise à jour", exception)
+                onError(exception)
+            }
+            // In RecipeViewModel.kt - updateRecipe method
+            .addOnSuccessListener {
+                Log.d("Recipio", "Recette mise à jour avec succès: ${recipe.id}, name: ${recipe.name}")
+                onSuccess()
+            }
+    }
+
 
 }
