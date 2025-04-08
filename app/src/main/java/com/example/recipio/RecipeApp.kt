@@ -96,7 +96,10 @@ fun RecipeApp(
             }
         },
         bottomBar = {
-            BottomNavigationBar(navController)
+            val excludedRoutes = listOf("Splash", "Login", "Signup")
+            if (currentRoute !in excludedRoutes) {
+                BottomNavigationBar(navController)
+            }
         }
     ) { innerPadding ->
         Column(
