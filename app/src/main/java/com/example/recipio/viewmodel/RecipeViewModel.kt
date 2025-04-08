@@ -8,20 +8,14 @@ import com.example.recipio.R
 import com.example.recipio.data.Ingredient
 import com.example.recipio.data.Recipe
 import com.example.recipio.data.RecipeUiState
+import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-
-import androidx.lifecycle.viewModelScope
-import com.google.android.gms.tasks.Task
-import com.google.firebase.firestore.firestore
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -40,6 +34,12 @@ class RecipeViewModel : ViewModel() {
             _uiState.update { currentState ->
                 currentState.copy(recipes = recipes, filteredRecipes = recipes)
             }
+        }
+    }
+
+    fun selectRecipe(recipe: Recipe) {
+        _uiState.update { currentState ->
+            currentState.copy(selectedRecipe = recipe)
         }
     }
 
@@ -64,6 +64,7 @@ class RecipeViewModel : ViewModel() {
 
             result.documents.map { document ->
                 Recipe(
+                    id = document.id, //on ajoute l'id du document comme id de la recette
                     name = document.getString("name") ?: "",
                     description = document.getString("description") ?: "",
                     tags = document.get("tags") as? List<String> ?: listOf(),
@@ -97,23 +98,6 @@ class RecipeViewModel : ViewModel() {
                 fileRef.downloadUrl
             }.continueWith { it.result.toString() }
 
-        /*if (imageUri != null) {
-            val fileRef = storageRef.child("images/${UUID.randomUUID()}.jpg")
-
-            fileRef.putFile(imageUri!!)
-                .addOnSuccessListener {
-                    fileRef.downloadUrl.addOnSuccessListener { uri ->
-                        Log.d("RECIPIO", "Image uploaded. Download URL: $uri")
-                        value = uri.toString()
-                    }
-                }
-                .addOnFailureListener { e ->
-                    Log.e("RECIPIO", "Upload failed", e)
-                }
-        } else {
-            Log.e("RECIPIO", "No image selected")
-        }
-        return value*/
     }
 
      fun addRecipeToUser(recipe: Recipe) {

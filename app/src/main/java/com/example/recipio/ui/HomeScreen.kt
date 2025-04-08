@@ -31,8 +31,13 @@ import com.example.recipio.data.RecipeUiState
 
 @Composable
 fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewModel: RecipeViewModel = viewModel()) {
-    LaunchedEffect(Unit) {
+    //might cause unnecessary network/database calls
+    /*LaunchedEffect(Unit) {
         viewModel.getRecipes()
+    }*/
+
+    LaunchedEffect(key1 = true) {
+        if (uiState.recipes.isEmpty()) viewModel.getRecipes()
     }
 
     Column(
@@ -85,10 +90,16 @@ fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewMod
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            //RecipeSection(title = "Récents", navController = navController)
-            //RecipeSection(title = "Favoris", navController = navController)
-            RecipeSection(title = "Récents", navController = navController, recipes = uiState.recipes)
-            RecipeSection(title = "Favoris", navController = navController, recipes = uiState.recipes)
+            val sections = listOf(
+                "Récents" to uiState.recipes.takeLast(8).reversed(),
+                "Favoris" to uiState.recipes.filter { it.isFavorite },
+                "Toutes les recettes" to uiState.recipes
+            )
+
+            sections.forEach { (title, recipes) ->
+                RecipeSection(title = title, navController = navController, recipes = recipes)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -105,7 +116,6 @@ fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewMod
                 }
             }
 
-            RecipeImageScrollSection(title = "Toutes les recettes", uiState.recipes,navController = navController)
             Spacer(modifier = Modifier.height(10.dp))
         }
 
@@ -132,40 +142,6 @@ fun RecipeImageItem(imageRes: Int, navController: NavHostController) {
 }
 
 @Composable
-fun RecipeImageScrollSection(title: String, recipes: List<Recipe>, navController: NavHostController) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .clickable {
-                    navController.navigate("all_recipes")
-                },
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
-        ) {
-            Text(
-                text = title,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(end = 8.dp)
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.baseline_arrow_forward_24),
-                contentDescription = "Voir plus",
-                modifier = Modifier.size(24.dp)
-            )
-        }
-        LazyRow(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
-
-            /*items(recipes.size, { R.drawable.default_dish_image }) { imageRes ->
-                RecipeImageItem(imageRes, navController)
-            }*/
-        }
-    }
-}
-
-@Composable
 fun RecipeSection(title: String, navController: NavHostController, recipes : List<Recipe>) {
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -173,7 +149,14 @@ fun RecipeSection(title: String, navController: NavHostController, recipes : Lis
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp)
-                .clickable { navController.navigate("all_recipes") },
+                //.clickable { navController.navigate("all_recipes") },
+                .clickable {
+                    when (title) {
+                        "Favoris" -> navController.navigate("favorite_recipes")
+                        "Récents" -> navController.navigate("recent_recipes")
+                        "Toutes les recettes" -> navController.navigate("all_recipes")
+                    }
+                },
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = title, fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -193,14 +176,23 @@ fun RecipeSection(title: String, navController: NavHostController, recipes : Lis
 }
 
 @Composable
-fun RecipeItem(recipe: Recipe, navController: NavHostController) {
-    Box(
+fun RecipeItem(
+    recipe: Recipe,
+    navController: NavHostController,
+    onRecipeClick: () -> Unit = {
+        //  implementation par défaut
+        navController.navigate("recipe_detail/${recipe.id}")
+    }
+) {    Box(
         modifier = Modifier
             .padding(8.dp)
             .size(120.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(Color.Gray)
-            /*.clickable { navController.navigate("recipe_detail/${recipe.name}") }*/
+            .clickable {
+                //navController.navigate("recipe_detail/${recipe.id}")
+                navController.navigate(RecipeApp.Recipe.name)
+            }
     ) {
         Image(
             painter = painterResource(id = R.drawable.default_dish_image),
