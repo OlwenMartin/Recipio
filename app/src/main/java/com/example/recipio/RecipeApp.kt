@@ -145,7 +145,7 @@ fun RecipeApp(
                     val recipeId = backStackEntry.arguments?.getString("recipeId")
                     LaunchedEffect(recipeId) {
                         if (recipeId != null) {
-                            viewModel.getRecipe(recipeId) // Appelle selectRecipe avec l'ID
+                            viewModel.getRecipe(recipeId)
                         }
                     }
                     RecipeScreen(
@@ -163,6 +163,7 @@ fun RecipeApp(
                         isNew = true,
                         onRecipeChange = {},
                         onSave = { recipe -> viewModel.addRecipeToUser(recipe) },
+                        navController = navController,
                         modifier = Modifier
                             .padding(top = 25.dp, start = 5.dp)
                             .fillMaxWidth()
@@ -173,6 +174,7 @@ fun RecipeApp(
                         recipe = uiState.selectedRecipe,
                         onRecipeChange = {},
                         onSave = { recipe -> viewModel.addRecipeToUser(recipe) },
+                        navController = navController,
                         modifier = Modifier
                             .padding(top = 25.dp, start = 5.dp)
                             .fillMaxWidth()

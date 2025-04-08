@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -60,10 +61,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.recipio.R
+import com.example.recipio.RecipeApp
 import com.example.recipio.data.Ingredient
 import com.example.recipio.data.Recipe
+import com.example.recipio.viewmodel.RecipeViewModel
 import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
 
@@ -73,9 +77,14 @@ fun ModifyScreen(
     isNew: Boolean = false,
     onRecipeChange: (Recipe) -> Unit,
     modifier: Modifier = Modifier,
-    onSave: (Recipe) -> Unit
+    onSave: (Recipe) -> Unit,
+    navController: NavHostController,
+    viewModel: RecipeViewModel = viewModel()
+
 ) {
     var copy by remember { mutableStateOf(recipe) }
+    val context = LocalContext.current
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -109,15 +118,23 @@ fun ModifyScreen(
                 }
             }
             IconButton(onClick = {
-                Log.d("RECIPIO", copy.toString())
-                onSave(copy)
+                viewModel.updateRecipe(copy,
+                    onSuccess = {
+                        Toast.makeText(context, "Recette sauvegardée", Toast.LENGTH_SHORT).show()
+                        viewModel.selectRecipe(copy)
+                        Log.d("NAVIGATION", "Navigating to recipe/${copy.id}")
+
+                        navController.navigate("${RecipeApp.Recipe.name}/${copy.id}") {
+                            popUpTo(RecipeApp.Modify.name) { inclusive = true }
+                        }
+                    },
+                    onError = { e -> Toast.makeText(context, "Erreur: ${e.message}", Toast.LENGTH_LONG).show() }
+                )
             })
             {
                 Icon(Icons.Default.Check, contentDescription = "Sauvegarder")
             }
         }
-
-        val context = LocalContext.current
 
         // Variable pour stocker l'URI de l'image sélectionnée
         var imageUri by remember { mutableStateOf<Uri?>(null) }
@@ -473,7 +490,7 @@ fun Chip(text: String, onRemove: () -> Unit) {
         }
     }
 }
-
+/*
 @PreviewScreenSizes
 @Preview
 @Composable
@@ -493,3 +510,4 @@ fun ModifyScreenPreview(){
         "notes en plus")
     ModifyScreen(recipe, onRecipeChange = {}, onSave = {}, modifier = Modifier)
 }
+*/

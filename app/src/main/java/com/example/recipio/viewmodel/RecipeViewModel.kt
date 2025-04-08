@@ -12,6 +12,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -143,4 +144,34 @@ class RecipeViewModel : ViewModel() {
             currentState.copy(filteredRecipes = filteredList)
         }
     }
+
+    fun updateRecipe(recipe: Recipe, onSuccess: () -> Unit = {}, onError: (Exception) -> Unit = {}) {
+        val db = Firebase.firestore
+        val user = FirebaseAuth.getInstance().currentUser
+
+        if (user == null) {
+            Log.w("Recipio", "Utilisateur non authentifié.")
+            onError(Exception("Utilisateur non authentifié"))
+            return
+        }
+
+        val recipeId = recipe.id
+        if (recipeId.isBlank()) {
+            Log.w("Recipio", "ID de la recette manquant.")
+            onError(Exception("ID de la recette manquant"))
+            return
+        }
+
+        db.collection("recipes").document(recipeId)
+            .set(recipe.toMap(), SetOptions.merge())
+            .addOnSuccessListener {
+                Log.d("Recipio", "Recette mise à jour avec succès")
+                onSuccess()
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Recipio", "Erreur lors de la mise à jour", exception)
+                onError(exception)
+            }
+    }
+
 }
