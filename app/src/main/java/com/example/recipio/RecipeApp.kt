@@ -1,6 +1,7 @@
 package com.example.recipio
 
 import HomeScreen
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -48,6 +49,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.recipio.data.RecipeField
 
 enum class RecipeApp(@StringRes val title: Int){
     Start(title = R.string.app_name),
@@ -134,13 +136,29 @@ fun RecipeApp(
                 }
 
                 composable(route = RecipeApp.Home.name) {
-                    HomeScreen(navController, uiState)
+                    HomeScreen(navController, uiState, viewModel)
                 }
+                composable(route = "${RecipeApp.Search.name}/{key}/{value}") { backStackEntry ->
+                    val key = backStackEntry.arguments?.getString("key") ?: "Name"
+                    val value = backStackEntry.arguments?.getString("value") ?: ""
+
+                    viewModel.filterRecipes(key, value)
+                    SearchScreen(
+                        recipes = uiState.filteredRecipes,
+                        onValueChanged = { filter -> navController.navigate("${RecipeApp.Search.name}/Name/${filter}")},
+                        navigate = {location -> navController.navigate(location)},
+                        searchBarHidden = true
+                    )
+                }
+
                 composable(route = RecipeApp.Search.name) {
                     SearchScreen(
                         recipes = uiState.filteredRecipes,
-                        onValueChanged = { filter -> viewModel.filterRecipes(filter) })
+                        navigate = {location -> navController.navigate(location)},
+                        onValueChanged = {value -> viewModel.filterRecipes(RecipeField.Name.toString(), value)},
+                        searchBarHidden = false)
                 }
+
                 composable(route = "${RecipeApp.Recipe.name}/{recipeId}") { backStackEntry ->
                     val recipeId = backStackEntry.arguments?.getString("recipeId")
                     LaunchedEffect(recipeId) {
@@ -167,18 +185,7 @@ fun RecipeApp(
                         recipe = Recipe(),
                         isNew = true,
                         onRecipeChange = {},
-                        onSave = { recipe -> viewModel.addRecipeToUser(recipe) },
-                        navController = navController,
-                        modifier = Modifier
-                            .padding(top = 25.dp, start = 5.dp)
-                            .fillMaxWidth()
-                    )
-                }
-                composable(route = RecipeApp.Modify.name) {
-                    ModifyScreen(
-                        recipe = uiState.selectedRecipe,
-                        onRecipeChange = {},
-                        onSave = { recipe -> viewModel.addRecipeToUser(recipe) },
+                        //onSave = { recipe -> viewModel.addRecipeToUser(recipe) },
                         navController = navController,
                         modifier = Modifier
                             .padding(top = 25.dp, start = 5.dp)
@@ -186,13 +193,13 @@ fun RecipeApp(
                     )
                 }
                 composable(route = "recent_recipes") {
-                    RecentRecipesScreen(navController)
+                    RecentRecipesScreen(navController, viewModel)
                 }
                 composable(route = "favorite_recipes") {
-                    FavoriteRecipesScreen(navController)
+                    FavoriteRecipesScreen(navController, viewModel)
                 }
                 composable(route = "all_recipes") {
-                    AllRecipesScreen(navController)
+                    AllRecipesScreen(navController, viewModel)
                 }
             }
         }
@@ -217,7 +224,7 @@ fun BottomNavigationBar(navController: NavHostController) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Catégories de recettes avec la même structure
-            listOf("Entrée", "Plats", "Desserts", "Autres").forEach { category ->
+            listOf("Entrée", "Plat", "Dessert", "Autre").forEach { category ->
                 Text(
                     text = category,
                     color = Color.White,
@@ -225,7 +232,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
-                        .clickable { navController.navigate(RecipeApp.Search.name) }
+                        .clickable { navController.navigate("${RecipeApp.Search.name}/Category/${category}") }
                         .padding(vertical = 4.dp, horizontal = 8.dp)
                 )
             }

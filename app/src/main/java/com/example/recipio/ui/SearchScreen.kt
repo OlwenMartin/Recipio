@@ -2,6 +2,7 @@ package com.example.recipio.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,19 +38,25 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.recipio.R
+import com.example.recipio.RecipeApp
 import com.example.recipio.data.Recipe
 
 @Composable
 fun SearchScreen(
     recipes : List<Recipe>,
-    onValueChanged : (String) -> Unit
+    onValueChanged : (String) -> Unit,
+    navigate: (String) -> Unit,
+    searchBarHidden: Boolean
 ){
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize()
     ) {
-        SearchBar(onValueChanged, modifier=Modifier.padding(bottom = 10.dp))
+        if(!searchBarHidden) {
+            SearchBar(onValueChanged, modifier = Modifier.padding(bottom = 10.dp))
+        }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
@@ -65,15 +72,27 @@ fun SearchScreen(
                     horizontalArrangement = Arrangement.Start,
                     modifier = Modifier.fillMaxWidth()
                         .padding(20.dp)
+                        .clickable {
+                            navigate("${RecipeApp.Recipe.name}/${recipe.id}")
+                        }
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.exemple_image),
-                        contentDescription = "Recipe Image",
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(RoundedCornerShape(12.dp)),
-                        contentScale = ContentScale.Crop
-                    )
+                    if(recipe.imageUrl != "") {
+                        AsyncImage(
+                            model = recipe.imageUrl,
+                            contentDescription = "Image chargée depuis une URI",
+                            modifier = Modifier.size(120.dp)
+                        )
+                    }
+                    else {
+                        Image(
+                            painter = painterResource(id = R.drawable.default_dish_image),
+                            contentDescription = recipe.name,
+                            modifier = Modifier
+                                .size(120.dp)
+                                .clip(RoundedCornerShape(12.dp)),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
                     Spacer(modifier = Modifier.width(20.dp))
                     Text(text = recipe.name, fontSize = 20.sp)
                 }

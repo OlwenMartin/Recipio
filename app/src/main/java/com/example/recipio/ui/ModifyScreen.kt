@@ -75,7 +75,6 @@ fun ModifyScreen(
     isNew: Boolean = false,
     onRecipeChange: (Recipe) -> Unit,
     modifier: Modifier = Modifier,
-    onSave: (Recipe) -> Unit,
     navController: NavHostController,
     viewModel: RecipeViewModel = viewModel()
 
@@ -115,28 +114,42 @@ fun ModifyScreen(
                     Icon(Icons.Default.Delete, contentDescription = "Supprimer")
                 }
             }
-            IconButton(onClick = {
-                viewModel.updateRecipe(copy,
-                    onSuccess = {
-                        Toast.makeText(context, "Recette sauvegardée", Toast.LENGTH_SHORT).show()
+            if(!isNew) {
+                // Modification
+                IconButton(onClick = {
+                    viewModel.updateRecipe(copy,
+                        onSuccess = {
+                            Toast.makeText(context, "Recette sauvegardée", Toast.LENGTH_SHORT)
+                                .show()
 
-                        // Reload all recipes
-                        viewModel.getRecipes()
+                            // Reload all recipes
+                            viewModel.getRecipes()
 
-                        // Force update the selected recipe
-                        viewModel.selectRecipe(copy)
+                            // Force update the selected recipe
+                            viewModel.selectRecipe(copy)
 
-                        navController.navigate("${RecipeApp.Recipe.name}/${copy.id}") {
-                            popUpTo(RecipeApp.Modify.name) { inclusive = true }
+                            navController.navigate("${RecipeApp.Recipe.name}/${copy.id}") {
+                                popUpTo(RecipeApp.Modify.name) { inclusive = true }
+                            }
+                        },
+                        onError = { e ->
+                            Toast.makeText(context, "Erreur: ${e.message}", Toast.LENGTH_LONG)
+                                .show()
                         }
-                    },
-                    onError = { e ->
-                        Toast.makeText(context, "Erreur: ${e.message}", Toast.LENGTH_LONG).show()
-                    }
-                )
-            })
-            {
-                Icon(Icons.Default.Check, contentDescription = "Sauvegarder")
+                    )
+                })
+                {
+                    Icon(Icons.Default.Check, contentDescription = "Sauvegarder")
+                }
+            }
+            else {
+                //Ajout
+                IconButton(onClick = {
+                    viewModel.addRecipeToUser(copy)
+                })
+                {
+                    Icon(Icons.Default.Check, contentDescription = "Ajouter")
+                }
             }
         }
 
@@ -187,7 +200,7 @@ fun ModifyScreen(
                 var expanded by remember { mutableStateOf(false) }
 
                 // Liste des catégories disponibles
-                val categories = listOf("Entrée", "Plat principal", "Dessert", "Autre")
+                val categories = listOf("Entrée", "Plat", "Dessert", "Autre")
 
                 // UI : sélection de la catégorie
                 Row(verticalAlignment = Alignment.CenterVertically) {

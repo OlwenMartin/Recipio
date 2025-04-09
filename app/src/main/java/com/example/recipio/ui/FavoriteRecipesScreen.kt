@@ -69,8 +69,7 @@ fun FavoriteRecipesScreen(
                     items(favoriteRecipes) { recipe ->
                         RecipeItem(
                             recipe = recipe,
-                            navController = navController,
-                            viewModel
+                            navController = navController
                         )
                     }
                 }

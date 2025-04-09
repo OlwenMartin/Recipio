@@ -60,7 +60,6 @@ fun RecipeScreen(
     onFavoriteToggle: (String) -> Unit = {},
 
 ) {
-    val uiState by viewModel.uiState.collectAsState()
 
     Column(
         modifier = modifier

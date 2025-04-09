@@ -147,7 +147,7 @@ fun RecipeSection(title: String, navController: NavHostController, recipes : Lis
         }
         LazyRow(modifier = Modifier.padding(start = 16.dp)) {
             items(recipes) { recipe ->
-                RecipeItem(recipe, navController, viewModel)
+                RecipeItem(recipe, navController)
             }
         }
     }
@@ -157,7 +157,6 @@ fun RecipeSection(title: String, navController: NavHostController, recipes : Lis
 fun RecipeItem(
     recipe: Recipe,
     navController: NavHostController,
-    viewModel: RecipeViewModel
 ) {
     Box(
     modifier = Modifier
@@ -166,7 +165,6 @@ fun RecipeItem(
         .clip(RoundedCornerShape(8.dp))
         .background(Color.Gray)
         .clickable {
-            viewModel.selectRecipe(recipe)
             navController.navigate("${RecipeApp.Recipe.name}/${recipe.id}")
         }
     ) {

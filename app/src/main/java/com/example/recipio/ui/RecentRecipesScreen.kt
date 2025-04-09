@@ -65,8 +65,7 @@ fun RecentRecipesScreen(navController: NavHostController, viewModel: RecipeViewM
                     items(recentRecipes) { recipe ->
                         RecipeItem(
                             recipe = recipe,
-                            navController = navController,
-                            viewModel
+                            navController = navController
                         )
                     }
                 }

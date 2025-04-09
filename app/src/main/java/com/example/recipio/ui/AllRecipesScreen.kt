@@ -67,8 +67,7 @@ fun AllRecipesScreen(
                     items(allRecipes) { recipe ->
                         RecipeItem(
                             recipe = recipe,
-                            navController = navController,
-                            viewModel
+                            navController = navController
                         )
                     }
                 }

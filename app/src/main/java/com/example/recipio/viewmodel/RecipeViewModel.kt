@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipio.data.Ingredient
 import com.example.recipio.data.Recipe
+import com.example.recipio.data.RecipeField
 import com.example.recipio.data.RecipeUiState
 import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
@@ -121,7 +122,8 @@ class RecipeViewModel : ViewModel() {
                     time = document.getLong("time")?.toInt() ?: 30,
                     notes = document.getString("notes") ?: "",
                     imageUrl = document.getString("image_url") ?: "",
-                    isFavorite = document.getBoolean("isFavorite") ?: false
+                    isFavorite = document.getBoolean("isFavorite") ?: false,
+                    category =  document.getString("category")?: ""
                 )
             }
         } catch (exception: Exception) {
@@ -179,44 +181,17 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
-    fun filterRecipes(filter : String){
-        val filteredList = recipes.filter { it.name.startsWith(filter) }
+    fun filterRecipes(key : String, value : String){
+        var filteredList = emptyList<Recipe>()
+        when(key){
+            RecipeField.Name.toString() -> filteredList = recipes.filter { it.name.startsWith(value) }
+            RecipeField.Category.toString() -> filteredList = recipes.filter { it.category == value }
+        }
         _uiState.update { currentState ->
             currentState.copy(filteredRecipes = filteredList)
         }
     }
 
-    /*
-    fun updateRecipe(recipe: Recipe, onSuccess: () -> Unit = {}, onError: (Exception) -> Unit = {}) {
-        val db = Firebase.firestore
-        val user = FirebaseAuth.getInstance().currentUser
-
-        if (user == null) {
-            Log.w("Recipio", "Utilisateur non authentifié.")
-            onError(Exception("Utilisateur non authentifié"))
-            return
-        }
-
-        val recipeId = recipe.id
-        if (recipeId.isBlank()) {
-            Log.w("Recipio", "ID de la recette manquant.")
-            onError(Exception("ID de la recette manquant"))
-            return
-        }
-
-        db.collection("recipes").document(recipeId)
-            .set(recipe.toMap(), SetOptions.merge())
-            .addOnSuccessListener {
-                Log.d("Recipio", "Recette mise à jour avec succès")
-                onSuccess()
-            }
-            .addOnFailureListener { exception ->
-                Log.e("Recipio", "Erreur lors de la mise à jour", exception)
-                onError(exception)
-            }
-    }
-
-     */
     //J'ai du modifer updateRecipe pour l'utiliser dans modifyscreen
     fun updateRecipe(recipe: Recipe, onSuccess: () -> Unit = {}, onError: (Exception) -> Unit = {}) {
         val db = Firebase.firestore
