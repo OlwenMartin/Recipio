@@ -192,6 +192,19 @@ fun RecipeApp(
                             .fillMaxWidth()
                     )
                 }
+
+                composable(route = RecipeApp.Modify.name) {
+                    ModifyScreen(
+                        recipe = uiState.selectedRecipe,
+                        onRecipeChange = {},
+                        //onSave = { recipe -> viewModel.addRecipeToUser(recipe) },
+                        navController = navController,
+                        modifier = Modifier
+                            .padding(top = 25.dp, start = 5.dp)
+                            .fillMaxWidth()
+                    )
+                }
+
                 composable(route = "recent_recipes") {
                     RecentRecipesScreen(navController, viewModel)
                 }

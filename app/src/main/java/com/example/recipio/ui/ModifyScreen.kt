@@ -308,7 +308,17 @@ fun ModifyScreen(
                     Text("Temps : ")
                     OutlinedTextField(
                         value = copy.time.toString(),
-                        onValueChange = { copy = copy.copy(time = it.toInt()) },
+                        onValueChange = {
+                            var time = 0
+                            try {
+                                time = it.toInt()
+                            }
+                            catch ( e : NumberFormatException){
+                                time = 0
+                            }
+                            copy = copy.copy(time = time)
+
+                                        },
                         label = { Text("Time in minutes") },
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)

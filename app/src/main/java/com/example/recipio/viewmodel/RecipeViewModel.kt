@@ -159,7 +159,7 @@ class RecipeViewModel : ViewModel() {
         }
          viewModelScope.launch {
              try {
-                if (recipe.imageUri != null) {
+                if (recipe.imageUri != Uri.EMPTY) {
                     val imageUrl = uploadImage(recipe.imageUri).await()
                     recipe.imageUrl = imageUrl
                 }
@@ -182,7 +182,7 @@ class RecipeViewModel : ViewModel() {
     }
 
     fun filterRecipes(key : String, value : String){
-        var filteredList = emptyList<Recipe>()
+        var filteredList = emptyList<Recipe> ()
         when(key){
             RecipeField.Name.toString() -> filteredList = recipes.filter { it.name.startsWith(value) }
             RecipeField.Category.toString() -> filteredList = recipes.filter { it.category == value }
