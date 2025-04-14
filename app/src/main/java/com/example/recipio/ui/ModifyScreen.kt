@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,8 +50,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -79,6 +82,7 @@ fun ModifyScreen(
     viewModel: RecipeViewModel = viewModel()
 
 ) {
+    val focusManager = LocalFocusManager.current
     var copy by remember { mutableStateOf(recipe) }
     val context = LocalContext.current
 
@@ -86,6 +90,11 @@ fun ModifyScreen(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus()
+                })
+            }
     ) {
         // Header
         Row(
@@ -145,48 +154,23 @@ fun ModifyScreen(
             else {
                 //Ajout
                 IconButton(onClick = {
-                    viewModel.addRecipeToUser(copy)
+                    viewModel.addRecipeToUser(copy,
+                        onSuccess = {
+                            Toast.makeText(context,
+                                context.getString(R.string.add_recipe_success), Toast.LENGTH_SHORT).show()
+                            navController.navigate(RecipeApp.Home.name)
+                        },
+                        onError = {error ->
+                            Toast.makeText(context,
+                                context.getString(R.string.add_recipe_error), Toast.LENGTH_SHORT).show()
+                        }
+                    )
                 })
                 {
                     Icon(Icons.Default.Check, contentDescription = "Ajouter")
                 }
             }
         }
-
-        var imageUri by remember { mutableStateOf<Uri?>(null) }
-        var bitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
-
-        // Launcher pour ouvrir le sélecteur d'images
-        val launcher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.GetContent()
-        ) { uri: Uri? ->
-            imageUri = uri
-
-            // Charger l'image en bitmap si une URI est sélectionnée
-            uri?.let {
-                copy = copy.copy(imageUri = uri)
-            }
-            }
-        // Image modifiable
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { launcher.launch("image/*") },
-            contentAlignment = Alignment.Center
-        ) {
-            if(copy.imageUri != Uri.EMPTY) {
-                AsyncImage(
-                    model = copy.imageUri,
-                    contentDescription = "Image chargée depuis une URI",
-                    modifier = Modifier.size(200.dp)
-                )
-            }
-            else{
-                Text(stringResource(R.string.add_image))
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         // Partie scrollable
         LazyColumn(
@@ -195,6 +179,41 @@ fun ModifyScreen(
                 .padding(top = 8.dp)
         ) {
             item {
+                var imageUri by remember { mutableStateOf<Uri?>(null) }
+                var bitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
+
+                // Launcher pour ouvrir le sélecteur d'images
+                val launcher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.GetContent()
+                ) { uri: Uri? ->
+                    imageUri = uri
+
+                    // Charger l'image en bitmap si une URI est sélectionnée
+                    uri?.let {
+                        copy = copy.copy(imageUri = uri)
+                    }
+                }
+                // Image modifiable
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { launcher.launch("image/*") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if(copy.imageUri != Uri.EMPTY) {
+                        AsyncImage(
+                            model = copy.imageUri,
+                            contentDescription = "Image chargée depuis une URI",
+                            modifier = Modifier.size(200.dp)
+                        )
+                    }
+                    else{
+                        Text(stringResource(R.string.add_image))
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 //Choix catégorie (entrées, plats, dessert,...)
                 // État local pour gérer l'ouverture du menu déroulant
                 var expanded by remember { mutableStateOf(false) }

@@ -9,4 +9,6 @@
     <string name="signup">Inscription</string>
     <string name="add_image">Ajouter une image</string>
     <string name="splash">Splash</string>
+    <string name="add_recipe_success">Recette ajoutée avec succès!</string>
+    <string name="add_recipe_error">Une erreur est survenue...</string>
 </resources>

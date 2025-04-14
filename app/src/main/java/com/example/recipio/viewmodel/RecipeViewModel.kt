@@ -149,7 +149,7 @@ class RecipeViewModel : ViewModel() {
 
     }
 
-     fun addRecipeToUser(recipe: Recipe) {
+     fun addRecipeToUser(recipe: Recipe, onSuccess: () -> Unit, onError: (Exception) -> Unit) {
         val user = FirebaseAuth.getInstance().currentUser
         val db = Firebase.firestore
 
@@ -174,9 +174,11 @@ class RecipeViewModel : ViewModel() {
 
                 Log.d("Recipio", "Recette ajoutée avec succès à l'utilisateur")
 
+                 onSuccess()
                 getRecipes()
             } catch (e: Exception) {
                 Log.e("Recipio", "Erreur lors de l'ajout de la recette", e)
+                 onError(e)
             }
         }
     }

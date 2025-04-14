@@ -65,7 +65,7 @@ enum class RecipeApp(@StringRes val title: Int){
 
 @Composable
 fun RecipeApp(
-    viewModel : RecipeViewModel = viewModel(),
+    viewModel : RecipeViewModel = RecipeViewModel(),
     navController: NavHostController = rememberNavController()
 ) {
     val uiState by viewModel.uiState.collectAsState()

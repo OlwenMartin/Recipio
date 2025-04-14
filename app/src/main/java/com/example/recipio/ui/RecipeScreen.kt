@@ -104,20 +104,7 @@ fun RecipeScreen(
             }
         }
 
-        // Image (statique, hors scroll)
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
-        ) {
 
-            if(recipe.imageUrl != "") {
-                AsyncImage(
-                    model = recipe.imageUrl,
-                    contentDescription = "Image chargée depuis une URI",
-                    modifier = Modifier.size(200.dp)
-                )
-            }
-        }
 
         // Partie scrollable
         LazyColumn(
@@ -126,6 +113,21 @@ fun RecipeScreen(
                 .padding(top = 8.dp)
         ) {
             item {
+                // Image
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+
+                    if(recipe.imageUrl != "") {
+                        AsyncImage(
+                            model = recipe.imageUrl,
+                            contentDescription = "Image chargée depuis une URI",
+                            modifier = Modifier.size(200.dp)
+                        )
+                    }
+                }
+
                 //Categorie
                 Text(text = "Categorie : " + recipe.category)
 
