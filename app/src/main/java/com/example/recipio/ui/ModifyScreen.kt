@@ -123,7 +123,29 @@ fun ModifyScreen(
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF88B04B)
                 )
-                IconButton(onClick = { /* Action supprimer */ }) {
+                IconButton(onClick = {
+                    viewModel.deleteRecipe(
+                        recipeId = copy.id,
+                        onSuccess = {
+                            Toast.makeText(context, "Recette supprimée", Toast.LENGTH_SHORT).show()
+
+                            // Rafraîchir la liste des recettes
+                            viewModel.getRecipes()
+
+                            // Naviguer vers la page d'accueil
+                            navController.navigate(RecipeApp.Home.name) {
+                                popUpTo(RecipeApp.Modify.name) { inclusive = true }
+                            }
+                        },
+                        onError = { error ->
+                            Toast.makeText(
+                                context,
+                                "Erreur lors de la suppression: ${error.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    )
+                }) {
                     Icon(Icons.Default.Delete, contentDescription = "Supprimer")
                 }
             }
@@ -454,6 +476,7 @@ fun ModifyScreen(
                                     tint = Color.Red
                                 )
                             }
+
                         }
                     }
                 }

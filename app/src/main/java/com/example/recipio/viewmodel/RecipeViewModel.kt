@@ -260,6 +260,55 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
+    fun deleteRecipe(recipeId: String, onSuccess: () -> Unit, onError: (Exception) -> Unit) {
+        val db = Firebase.firestore
+        val user = FirebaseAuth.getInstance().currentUser
+
+        if (user == null) {
+            Log.w("Recipio", "Utilisateur non authentifié.")
+            onError(Exception("Utilisateur non authentifié"))
+            return
+        }
+
+        if (recipeId.isBlank()) {
+            Log.w("Recipio", "ID de la recette manquant.")
+            onError(Exception("ID de la recette manquant"))
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                //  Supprimer la recette de Firestore
+                db.collection("recipes").document(recipeId)
+                    .delete()
+                    .await()
+
+                // Supprimer la référence de la recette du document utilisateur
+                val userRef = db.collection("users").document(user.uid)
+                userRef.update("recipes", FieldValue.arrayRemove(recipeId))
+                    .await()
+
+                // Mettre à jour l'état local (supprimer la recette des listes)
+                _uiState.update { currentState ->
+                    val updatedRecipes = currentState.recipes.filter { it.id != recipeId }
+                    val updatedFilteredRecipes = currentState.filteredRecipes.filter { it.id != recipeId }
+                    val updatedRecentRecipes = currentState.recentRecipes.filter { it.id != recipeId }
+
+                    currentState.copy(
+                        recipes = updatedRecipes,
+                        filteredRecipes = updatedFilteredRecipes,
+                        recentRecipes = updatedRecentRecipes
+                    )
+                }
+
+                Log.d("Recipio", "Recette supprimée avec succès: $recipeId")
+                onSuccess()
+            } catch (e: Exception) {
+                Log.e("Recipio", "Erreur lors de la suppression de la recette", e)
+                onError(e)
+            }
+        }
+    }
     fun filterRecipes(key : String, value : String){
         var filteredList = emptyList<Recipe> ()
         when(key){
