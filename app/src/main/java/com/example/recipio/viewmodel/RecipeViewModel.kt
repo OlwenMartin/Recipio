@@ -12,6 +12,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
@@ -30,21 +31,19 @@ class RecipeViewModel : ViewModel() {
 
     fun getRecipes() {
         viewModelScope.launch {
-            recipes  = fetchUserRecipes()
+            recipes = fetchUserRecipes()
+            val recentRecipesList = fetchRecentRecipes()
 
             _uiState.update { currentState ->
-                currentState.copy(recipes = recipes, filteredRecipes = recipes)
+                currentState.copy(
+                    recipes = recipes,
+                    filteredRecipes = recipes,
+                    recentRecipes = recentRecipesList
+                )
             }
         }
     }
 
-    /*
-    fun getRecipe(recipeId: String) {
-        val selected = recipes.find { it.id == recipeId }
-        _uiState.value = _uiState.value.copy(selectedRecipe = selected ?: Recipe())
-    }
-     */
-    //J'ai du modifer getRecipe pour l'utiliser dans modifyscreen
     fun getRecipe(recipeId: String) {
         viewModelScope.launch {
             val db = Firebase.firestore
@@ -91,9 +90,58 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
-    private suspend fun fetchUserRecipes(): List<Recipe> {
+    // Ajout de .orderby dans la fct déjà existante a crée des erreurs donc je l'ai mis là
+    private suspend fun fetchRecentRecipes(): List<Recipe> {
         val db = Firebase.firestore
         val user = FirebaseAuth.getInstance().currentUser
+
+        if (user == null) {
+            Log.w("Recipio", "Utilisateur non authentifié.")
+            return emptyList()
+        }
+
+        return try {
+            Log.d("Recipio", "Fetching recent recipes for user: ${user.uid}")
+
+            val result = db.collection("recipes")
+                .whereEqualTo("userId", user.uid)
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .limit(8)
+                .get()
+                .await()
+
+            Log.d("Recipio", "Found ${result.documents.size} recent recipes")
+
+            result.documents.map { document ->
+                Recipe(
+                    id = document.id,
+                    name = document.getString("name") ?: "",
+                    description = document.getString("description") ?: "",
+                    tags = document.get("tags") as? List<String> ?: listOf(),
+                    steps = document.get("steps") as? List<String> ?: listOf(),
+                    ingredients = listOf(Ingredient("ing1", 30.0, "g")),
+                    numberOfPeople = document.getLong("numberOfPeople")?.toInt() ?: 4,
+                    time = document.getLong("time")?.toInt() ?: 30,
+                    notes = document.getString("notes") ?: "",
+                    imageUrl = document.getString("image_url") ?: "",
+                    isFavorite = document.getBoolean("isFavorite") ?: false,
+                    category = document.getString("category")?: "",
+                    createdAt = document.getTimestamp("createdAt")?.toDate()
+                )
+            }
+        } catch (exception: Exception) {
+            Log.w("Recipio", "Erreur lors de la récupération des recettes récentes.", exception)
+            exception.printStackTrace()
+            emptyList()
+        }
+    }
+
+    private suspend fun fetchUserRecipes(): List<Recipe> {
+
+        val db = Firebase.firestore
+        val user = FirebaseAuth.getInstance().currentUser
+        Log.d("Recipio", "Current user: ${user?.uid ?: "null"}")
+
 
         if (user == null) {
             Log.w("Recipio", "Utilisateur non authentifié.")
@@ -108,6 +156,7 @@ class RecipeViewModel : ViewModel() {
                 .get()
                 .await()
 
+            Log.d("Recipio", "Query constructed, executing...")
             Log.d("Recipio", "Found ${result.documents.size} recipes")
 
             result.documents.map { document ->
@@ -123,7 +172,8 @@ class RecipeViewModel : ViewModel() {
                     notes = document.getString("notes") ?: "",
                     imageUrl = document.getString("image_url") ?: "",
                     isFavorite = document.getBoolean("isFavorite") ?: false,
-                    category =  document.getString("category")?: ""
+                    category =  document.getString("category")?: "",
+                    createdAt = document.getTimestamp("createdAt")?.toDate()
                 )
             }
         } catch (exception: Exception) {
@@ -164,11 +214,17 @@ class RecipeViewModel : ViewModel() {
                     recipe.imageUrl = imageUrl
                 }
 
-                // Ajout de la recette à la collection "recipes"
-                val recipeRef = db.collection("recipes").add(recipe.toMap()).await()
+                 val newRecipeData = recipe.toMap().toMutableMap()
 
-                // Ajout de la référence de la recette dans le document de l'utilisateur
-                val userRef = db.collection("users").document(user.uid)
+                // Ajout du timestamp
+                 newRecipeData["createdAt"] = FieldValue.serverTimestamp()
+
+                // Ajout dans Firestore avec le timestamp
+                 val recipeRef = db.collection("recipes").add(newRecipeData).await()
+
+                 // Ajout de la référence de la recette dans le document de l'utilisateur
+                 val userRef = db.collection("users").document(user.uid)
+
                 userRef.update("recipes", FieldValue.arrayUnion(recipeRef.id))
                     .await()
 
@@ -194,7 +250,6 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
-    //J'ai du modifer updateRecipe pour l'utiliser dans modifyscreen
     fun updateRecipe(recipe: Recipe, onSuccess: () -> Unit = {}, onError: (Exception) -> Unit = {}) {
         val db = Firebase.firestore
         val user = FirebaseAuth.getInstance().currentUser

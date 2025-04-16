@@ -118,7 +118,7 @@ fun RecipeApp(
                 composable(route = RecipeApp.Login.name) {
                     LoginScreen(
                         onLoginSuccess = {
-                            viewModel.getRecipes() // Charge les recettes immédiatement après connexion
+                            viewModel.getRecipes()
                             navController.navigate(RecipeApp.Home.name) {
                                 popUpTo(RecipeApp.Login.name) { inclusive = true }
                             }

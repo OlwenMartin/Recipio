@@ -16,8 +16,9 @@ data class Recipe(
     var numberOfPeople: Int = 4,
     var time: Int = 0,
     var notes: String = "",
-    var id: String = ""
-) {
+    var id: String = "",
+    var createdAt: java.util.Date? = null,
+    ) {
 
     fun toMap(): Map<String, Any> {
         val user = FirebaseAuth.getInstance().currentUser

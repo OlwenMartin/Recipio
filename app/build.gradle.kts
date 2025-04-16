@@ -63,5 +63,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.coil.compose)
-
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
 }

@@ -1,4 +1,3 @@
-import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -63,12 +63,12 @@ fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewMod
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.logo_accueil),
-                        contentDescription = "Logo",
+                        contentDescription = stringResource(R.string.app_logo) ,
                         modifier = Modifier.size(130.dp)
                     )
                     Spacer(modifier = Modifier.width(1.dp))
                     Text(
-                        text = "Recipio",
+                        text = stringResource(R.string.app_name),
                         fontSize = 33.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
@@ -77,7 +77,7 @@ fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewMod
 
                 Image(
                     painter = painterResource(id = R.drawable.search_icon),
-                    contentDescription = "Search",
+                    contentDescription = stringResource(R.string.search),
                     modifier = Modifier
                         .size(30.dp)
                         .clickable {
@@ -89,9 +89,9 @@ fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewMod
             Spacer(modifier = Modifier.height(16.dp))
 
             val sections = listOf(
-                "Récents" to uiState.recipes.takeLast(8).reversed(),
-                "Favoris" to uiState.recipes.filter { it.isFavorite },
-                "Toutes les recettes" to uiState.recipes
+                stringResource(R.string.recent_recipes) to uiState.recentRecipes,
+                stringResource(R.string.favorites) to uiState.recipes.filter { it.isFavorite },
+                stringResource(R.string.all_recipes) to uiState.recipes
             )
 
             sections.forEach { (title, recipes) ->
@@ -110,7 +110,7 @@ fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewMod
                     modifier = Modifier.padding(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE58E30))
                 ) {
-                    Text(text = "Ajouter", color = Color.White)
+                    Text(text = stringResource(R.string.add), color = Color.White)
                 }
             }
 
@@ -122,7 +122,9 @@ fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewMod
 
 @Composable
 fun RecipeSection(title: String, navController: NavHostController, recipes : List<Recipe>, viewModel: RecipeViewModel) {
-
+    val recent = stringResource(R.string.recent_recipes)
+    val favorites = stringResource(R.string.favorites)
+    val all = stringResource(R.string.all_recipes)
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -130,9 +132,12 @@ fun RecipeSection(title: String, navController: NavHostController, recipes : Lis
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .clickable {
                     when (title) {
-                        "Favoris" -> navController.navigate("favorite_recipes")
+                        /*"Favoris" -> navController.navigate("favorite_recipes")
                         "Récents" -> navController.navigate("recent_recipes")
-                        "Toutes les recettes" -> navController.navigate("all_recipes")
+                        "Toutes les recettes" -> navController.navigate("all_recipes")*/
+                        favorites -> navController.navigate("favorite_recipes")
+                        recent -> navController.navigate("recent_recipes")
+                        all -> navController.navigate("all_recipes")
                     }
                 },
             verticalAlignment = Alignment.CenterVertically
@@ -141,7 +146,7 @@ fun RecipeSection(title: String, navController: NavHostController, recipes : Lis
             Spacer(modifier = Modifier.width(8.dp))
             Icon(
                 painter = painterResource(id = R.drawable.baseline_arrow_forward_24),
-                contentDescription = "Voir plus",
+                contentDescription = stringResource(R.string.voir_plus),
                 modifier = Modifier.size(24.dp)
             )
         }
@@ -171,7 +176,7 @@ fun RecipeItem(
         if(recipe.imageUrl != "") {
             AsyncImage(
                 model = recipe.imageUrl,
-                contentDescription = "Image chargée depuis une URI",
+                contentDescription = stringResource(R.string.description_uri),
                 modifier = Modifier.size(200.dp)
             )
         }

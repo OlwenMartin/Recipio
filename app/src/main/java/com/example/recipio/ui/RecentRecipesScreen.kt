@@ -26,7 +26,7 @@ fun RecentRecipesScreen(navController: NavHostController, viewModel: RecipeViewM
         if (uiState.recipes.isEmpty()) viewModel.getRecipes()
     }
 
-    val recentRecipes = uiState.recipes.takeLast(8).reversed()
+    val recentRecipes = uiState.recentRecipes
     println(recentRecipes)
 
     Box(
