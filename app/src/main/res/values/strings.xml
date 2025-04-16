@@ -18,4 +18,16 @@
     <string name="add" translatable="false">Ajouter</string>
     <string name="voir_plus" translatable="false">Voir plus</string>
     <string name="description_uri" translatable="false">Image chargée depuis une URI</string>
+
+    <string name="connexion_reussie" translatable="false">Connexion réussie!</string>
+    <string name="echec_connexion" translatable="false">Échec de connexion</string>
+    <string name="bg" translatable="false">Background</string>
+    <string name="seconnecter" translatable="false">Se connecter</string>
+    <string name="connexion" translatable="false">Connexion...</string>
+    <string name="courriel" translatable="false">Courriel</string>
+    <string name="email_icon" translatable="false">Email Icon</string>
+    <string name="mot_de_passe" translatable="false">Mot de passe</string>
+    <string name="password_icon" translatable="false">Password Icon</string>
+    <string name="no_account" translatable="false">Pas de compte?</string>
+    <string name="sinscrire" translatable="false">Inscris-toi !</string>
 </resources>

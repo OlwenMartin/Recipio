@@ -10,6 +10,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,10 +34,8 @@ import com.example.recipio.data.RecipeUiState
 @Composable
 fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewModel: RecipeViewModel = viewModel()) {
 
-    LaunchedEffect(uiState.recipes.size) {
-        if (uiState.recipes.isEmpty()) {
-            viewModel.getRecipes()
-        }
+    LaunchedEffect(Unit) {
+        viewModel.getRecipes()
     }
 
     Column(
@@ -132,9 +132,6 @@ fun RecipeSection(title: String, navController: NavHostController, recipes : Lis
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .clickable {
                     when (title) {
-                        /*"Favoris" -> navController.navigate("favorite_recipes")
-                        "Récents" -> navController.navigate("recent_recipes")
-                        "Toutes les recettes" -> navController.navigate("all_recipes")*/
                         favorites -> navController.navigate("favorite_recipes")
                         recent -> navController.navigate("recent_recipes")
                         all -> navController.navigate("all_recipes")

@@ -42,6 +42,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -71,6 +72,9 @@ import com.example.recipio.RecipeApp
 import com.example.recipio.data.Ingredient
 import com.example.recipio.data.Recipe
 import com.example.recipio.viewmodel.RecipeViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun ModifyScreen(
@@ -158,7 +162,12 @@ fun ModifyScreen(
                         onSuccess = {
                             Toast.makeText(context,
                                 context.getString(R.string.add_recipe_success), Toast.LENGTH_SHORT).show()
-                            navController.navigate(RecipeApp.Home.name)
+
+                            viewModel.getRecipes()
+                            // Naviguer vers la page d'accueil
+                            navController.navigate(RecipeApp.Home.name) {
+                                popUpTo(RecipeApp.Add.name) { inclusive = true }
+                            }
                         },
                         onError = {error ->
                             Toast.makeText(context,

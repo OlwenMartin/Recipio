@@ -18,6 +18,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -40,6 +41,10 @@ fun LoginScreen(
     var loading by remember { mutableStateOf(false) }
     val auth = FirebaseAuth.getInstance()
 
+    val connexion_reussies = stringResource(R.string.connexion_reussie)
+    val connexion_echouee = stringResource(R.string.echec_connexion)
+
+
     fun loginUser(email: String, password: String) {
         loading = true
         auth.signInWithEmailAndPassword(email, password)
@@ -47,11 +52,11 @@ fun LoginScreen(
                 loading = false
                 if (task.isSuccessful) {
                     viewModel.getRecipes()
-                    Toast.makeText(context, "Connexion réussie!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, connexion_reussies, Toast.LENGTH_SHORT).show()
                     onLoginSuccess()
                     navController.navigate("Home")
                 } else {
-                    Toast.makeText(context, "Échec de connexion: ${task.exception?.localizedMessage}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "${connexion_echouee}: ${task.exception?.localizedMessage}", Toast.LENGTH_LONG).show()
                 }
             }
     }
@@ -63,7 +68,7 @@ fun LoginScreen(
     ) {
         Image(
             painter = painterResource(id = R.drawable.background_image),
-            contentDescription = "Background",
+            contentDescription = stringResource(R.string.bg),
             contentScale = ContentScale.FillWidth,
             modifier = Modifier
                 .fillMaxWidth()
@@ -76,7 +81,7 @@ fun LoginScreen(
         ) {
             Spacer(modifier = Modifier.height(60.dp))
             Text(
-                text = "Recipio",
+                text = stringResource(R.string.app_name),
                 fontSize = 58.sp,
                 fontWeight = FontWeight.Bold,
                 color = colorResource(id = R.color.white),
@@ -106,7 +111,7 @@ fun LoginScreen(
                     ) {
                         Spacer(modifier = Modifier.height(40.dp))
                         Text(
-                            text = "Se connecter",
+                            text = stringResource(R.string.seconnecter),
                             fontSize = 40.sp,
                             fontWeight = FontWeight.Bold,
                             color = colorResource(id = R.color.black),
@@ -117,11 +122,11 @@ fun LoginScreen(
                         OutlinedTextField(
                             value = email,
                             onValueChange = { email = it },
-                            label = { Text("Courriel") },
+                            label = { Text(stringResource(R.string.courriel)) },
                             leadingIcon = {
                                 Icon(
                                     painter = painterResource(id = R.drawable.baseline_email_24),
-                                    contentDescription = "email Icon"
+                                    contentDescription = stringResource(R.string.email_icon)
                                 )
                             },
                             modifier = Modifier.width(300.dp),
@@ -134,11 +139,11 @@ fun LoginScreen(
                         OutlinedTextField(
                             value = password,
                             onValueChange = { password = it },
-                            label = { Text("Mot de passe") },
+                            label = { Text(stringResource(R.string.mot_de_passe)) },
                             leadingIcon = {
                                 Icon(
                                     painter = painterResource(id = R.drawable.baseline_adb_24),
-                                    contentDescription = "Password Icon"
+                                    contentDescription = stringResource(R.string.password_icon)
                                 )
                             },
                             visualTransformation = PasswordVisualTransformation(),
@@ -161,18 +166,18 @@ fun LoginScreen(
                             ),
                             border = BorderStroke(1.dp, colorResource(id = R.color.orange_dark))
                         ) {
-                            Text(text = if (loading) "Connexion..." else "Se connecter", fontSize = 18.sp)
+                            Text(text = if (loading) stringResource(R.string.connexion) else stringResource(R.string.seconnecter), fontSize = 18.sp)
                         }
                         Spacer(modifier = Modifier.height(20.dp))
 
                         Row {
                             Text(
-                                text = "Pas de compte? ",
+                                text = stringResource(R.string.no_account),
                                 fontSize = 18.sp,
                                 color = colorResource(id = R.color.black)
                             )
                             Text(
-                                text = "Inscris-toi !",
+                                text = stringResource(R.string.sinscrire),
                                 fontSize = 18.sp,
                                 color = colorResource(id = R.color.orange),
                                 modifier = Modifier.clickable {

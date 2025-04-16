@@ -31,15 +31,23 @@ class RecipeViewModel : ViewModel() {
 
     fun getRecipes() {
         viewModelScope.launch {
-            recipes = fetchUserRecipes()
-            val recentRecipesList = fetchRecentRecipes()
+            try {
+                val fetchedRecipes = fetchUserRecipes()
+                val recentRecipesList = fetchRecentRecipes()
 
-            _uiState.update { currentState ->
-                currentState.copy(
-                    recipes = recipes,
-                    filteredRecipes = recipes,
-                    recentRecipes = recentRecipesList
-                )
+                Log.d("Recipio", "Fetched ${fetchedRecipes.size} recipes")
+
+                recipes = fetchedRecipes
+
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        recipes = fetchedRecipes,
+                        filteredRecipes = fetchedRecipes,
+                        recentRecipes = recentRecipesList
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("Recipio", "Error fetching recipes", e)
             }
         }
     }
@@ -199,7 +207,7 @@ class RecipeViewModel : ViewModel() {
 
     }
 
-     fun addRecipeToUser(recipe: Recipe, onSuccess: () -> Unit, onError: (Exception) -> Unit) {
+    fun addRecipeToUser(recipe: Recipe, onSuccess: (String) -> Unit, onError: (Exception) -> Unit) {
         val user = FirebaseAuth.getInstance().currentUser
         val db = Firebase.firestore
 
@@ -207,34 +215,47 @@ class RecipeViewModel : ViewModel() {
             Log.w("Recipio", "Utilisateur non authentifié.")
             return
         }
-         viewModelScope.launch {
-             try {
+        viewModelScope.launch {
+            try {
                 if (recipe.imageUri != Uri.EMPTY) {
                     val imageUrl = uploadImage(recipe.imageUri).await()
                     recipe.imageUrl = imageUrl
                 }
 
-                 val newRecipeData = recipe.toMap().toMutableMap()
+                val newRecipeData = recipe.toMap().toMutableMap()
 
                 // Ajout du timestamp
-                 newRecipeData["createdAt"] = FieldValue.serverTimestamp()
+                newRecipeData["createdAt"] = FieldValue.serverTimestamp()
 
                 // Ajout dans Firestore avec le timestamp
-                 val recipeRef = db.collection("recipes").add(newRecipeData).await()
+                val recipeRef = db.collection("recipes").add(newRecipeData).await()
+                val newRecipeId = recipeRef.id
 
-                 // Ajout de la référence de la recette dans le document de l'utilisateur
-                 val userRef = db.collection("users").document(user.uid)
+                // Ajout de la référence de la recette dans le document de l'utilisateur
+                val userRef = db.collection("users").document(user.uid)
 
-                userRef.update("recipes", FieldValue.arrayUnion(recipeRef.id))
+                userRef.update("recipes", FieldValue.arrayUnion(newRecipeId))
                     .await()
 
                 Log.d("Recipio", "Recette ajoutée avec succès à l'utilisateur")
 
-                 onSuccess()
-                getRecipes()
+                // Ajouter explicitement la nouvelle recette à l'état local
+                val newRecipe = recipe.copy(id = newRecipeId)
+                _uiState.update { currentState ->
+                    val updatedRecipes = currentState.recipes + newRecipe
+                    val updatedRecentRecipes = listOf(newRecipe) + currentState.recentRecipes.take(7)
+
+                    currentState.copy(
+                        recipes = updatedRecipes,
+                        filteredRecipes = updatedRecipes,
+                        recentRecipes = updatedRecentRecipes
+                    )
+                }
+
+                onSuccess(newRecipeId)
             } catch (e: Exception) {
                 Log.e("Recipio", "Erreur lors de l'ajout de la recette", e)
-                 onError(e)
+                onError(e)
             }
         }
     }
