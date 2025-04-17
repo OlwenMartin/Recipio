@@ -1,22 +1,19 @@
 package com.example.recipio.ui
 
-import android.app.Activity
-import android.content.Intent
+import android.content.ContentValues
+import androidx.compose.material3.AlertDialog
 import android.net.Uri
-import android.os.Build
+import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,29 +38,25 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat.startActivityForResult
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -72,9 +65,7 @@ import com.example.recipio.RecipeApp
 import com.example.recipio.data.Ingredient
 import com.example.recipio.data.Recipe
 import com.example.recipio.viewmodel.RecipeViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import java.io.File
 
 @Composable
 fun ModifyScreen(
@@ -211,7 +202,21 @@ fun ModifyScreen(
         ) {
             item {
                 var imageUri by remember { mutableStateOf<Uri?>(null) }
-                var bitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
+                var photoUri by remember { mutableStateOf<Uri?>(null) }
+                var showDialog by remember { mutableStateOf(false) }
+
+                // Ajouter l'image à la galerie (MediaStore)
+                fun addImageToGallery(uri: Uri) {
+                    val resolver = context.contentResolver
+                    val values = ContentValues().apply {
+                        put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000)
+                        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+                        put(MediaStore.Images.Media.DATA, uri.path) // Ajoute le chemin de l'image
+                    }
+
+                    // Insérer dans la galerie via MediaStore
+                    resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+                }
 
                 // Launcher pour ouvrir le sélecteur d'images
                 val launcher = rememberLauncherForActivityResult(
@@ -224,22 +229,86 @@ fun ModifyScreen(
                         copy = copy.copy(imageUri = uri)
                     }
                 }
-                // Image modifiable
+
+                // Launcher pour prendre une photo avec la caméra
+                val cameraLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.TakePicture()
+                ) { success ->
+                    if (success) {
+                        // Ajouter la photo à la galerie
+                        photoUri?.let {
+                            // Mettre à jour imageUri avec la photo prise
+                            imageUri = it
+                            copy = copy.copy(imageUri = it)
+
+                            // Ajouter la photo au MediaStore (Galerie)
+                            addImageToGallery(it)
+                        }
+                    }
+                }
+
+                // Fonction pour créer un fichier temporaire et en extraire l'Uri
+                fun createImageUri(): Uri {
+                    // Utilisation du dossier Pictures dans le stockage externe
+                    val file = File(
+                        context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                        "photo_${System.currentTimeMillis()}.jpg"
+                    )
+
+                    // Obtenir l'URI du fichier en utilisant FileProvider
+                    return FileProvider.getUriForFile(
+                        context,
+                        "${context.packageName}.provider", // Assure-toi que cela correspond à ce qui est dans le manifeste
+                        file
+                    )
+                }
+
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { launcher.launch("image/*") },
+                        .clickable { showDialog = true }, // Ouvre le menu au clic
                     contentAlignment = Alignment.Center
                 ) {
-                    if(copy.imageUri != Uri.EMPTY) {
+                    if (copy.imageUri != Uri.EMPTY) {
                         AsyncImage(
                             model = copy.imageUri,
                             contentDescription = "Image chargée depuis une URI",
                             modifier = Modifier.size(200.dp)
                         )
-                    }
-                    else{
+                    } else {
                         Text(stringResource(R.string.add_image))
+                    }
+
+                    // Menu de choix
+                    if (showDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showDialog = false },
+                            title = {
+                                Text("Choisir une option")
+                            },
+                            text = {
+                                Text("Sélectionne une source d'image")
+                            },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    showDialog = false
+                                    launcher.launch("image/*")
+                                }) {
+                                    Text("Galerie")
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = {
+                                    showDialog = false
+                                    val uri = createImageUri()
+                                    photoUri = uri
+                                    cameraLauncher.launch(uri)
+                                }) {
+                                    Text("Caméra")
+                                }
+                            }
+                        )
                     }
                 }
 
