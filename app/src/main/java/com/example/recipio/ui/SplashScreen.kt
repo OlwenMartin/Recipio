@@ -19,11 +19,31 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.runtime.LaunchedEffect
+import com.example.recipio.RecipeApp
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(navController: NavController) {
 
-    // Ensure edge-to-edge
+    LaunchedEffect(key1 = true) {
+        delay(1500)
+
+        // Vérifier si l'utilisateur est déjà connecté
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser != null) {
+            // L'utilisateur est déjà connecté, aller directement à l'écran d'accueil
+            navController.navigate(RecipeApp.Home.name) {
+                popUpTo(RecipeApp.Splash.name) { inclusive = true }
+            }
+        } else {
+            // L'utilisateur n'est pas connecté, aller à l'écran de connexion
+            navController.navigate(RecipeApp.Login.name) {
+                popUpTo(RecipeApp.Splash.name) { inclusive = true }
+            }
+        }
+    }
     val view = LocalView.current
     if (!view.isInEditMode) {
         WindowCompat.setDecorFitsSystemWindows(

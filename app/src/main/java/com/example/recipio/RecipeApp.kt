@@ -1,6 +1,6 @@
 package com.example.recipio
 
-import HomeScreen
+import com.example.recipio.ui.HomeScreen
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
@@ -50,6 +50,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.recipio.data.RecipeField
+import com.example.recipio.ui.HomeScreen
+import com.example.recipio.ui.SettingsScreen
 
 enum class RecipeApp(@StringRes val title: Int){
     Start(title = R.string.app_name),
@@ -60,7 +62,8 @@ enum class RecipeApp(@StringRes val title: Int){
     Modify(title=R.string.modify),
     Login(title=R.string.login),
     Signup(title=R.string.signup),
-    Splash(title=R.string.splash)
+    Splash(title=R.string.splash),
+    Settings(title=R.string.settings)
 }
 
 @Composable
@@ -125,6 +128,10 @@ fun RecipeApp(
                         },
                         navController = navController
                     )
+                }
+
+                composable(route = RecipeApp.Settings.name) {
+                    SettingsScreen(navController)
                 }
 
                 composable(route = "Splash") {
@@ -254,10 +261,11 @@ fun BottomNavigationBar(navController: NavHostController) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_display_settings_24),
                 contentDescription = "Settings",
-                tint = Color.White,
+                tint = if (currentRoute == RecipeApp.Settings.name) Color(0xFF436118) else Color.White,
                 modifier = Modifier
                     .size(30.dp)
                     .clip(RoundedCornerShape(8.dp))
+                    .clickable { navController.navigate(RecipeApp.Settings.name) }
                     .padding(2.dp)
             )
 

@@ -17,6 +17,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.recipio.R
+import com.example.recipio.RecipeApp
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
@@ -45,7 +47,7 @@ fun SignupScreen(navController: NavController) {
     ) {
         Image(
             painter = painterResource(id = R.drawable.background_image),
-            contentDescription = "Background",
+            contentDescription = stringResource(R.string.background_image_desc),
             contentScale = ContentScale.FillWidth,
             modifier = Modifier
                 .fillMaxWidth()
@@ -58,7 +60,7 @@ fun SignupScreen(navController: NavController) {
         ) {
             Spacer(modifier = Modifier.height(60.dp))
             Text(
-                text = "Recipio",
+                text = stringResource(R.string.app_name),
                 fontSize = 58.sp,
                 fontWeight = FontWeight.Bold,
                 color = colorResource(id = R.color.white),
@@ -88,7 +90,7 @@ fun SignupScreen(navController: NavController) {
                     ) {
                         Spacer(modifier = Modifier.height(40.dp))
                         Text(
-                            text = "S'inscrire",
+                            text = stringResource(R.string.signup),
                             fontSize = 40.sp,
                             fontWeight = FontWeight.Bold,
                             color = colorResource(id = R.color.black),
@@ -99,11 +101,11 @@ fun SignupScreen(navController: NavController) {
                         OutlinedTextField(
                             value = email,
                             onValueChange = { email = it },
-                            label = { Text("Courriel") },
+                            label = { Text(stringResource(R.string.courriel)) },
                             leadingIcon = {
                                 Icon(
                                     painter = painterResource(id = R.drawable.baseline_email_24),
-                                    contentDescription = "Email Icon"
+                                    contentDescription = stringResource(R.string.email_icon)
                                 )
                             },
                             modifier = Modifier.width(300.dp),
@@ -116,11 +118,11 @@ fun SignupScreen(navController: NavController) {
                         OutlinedTextField(
                             value = password,
                             onValueChange = { password = it },
-                            label = { Text("Mot de passe") },
+                            label = { Text(stringResource(R.string.mot_de_passe)) },
                             leadingIcon = {
                                 Icon(
                                     painter = painterResource(id = R.drawable.baseline_adb_24),
-                                    contentDescription = "Password Icon"
+                                    contentDescription = stringResource(R.string.password_icon)
                                 )
                             },
                             visualTransformation = PasswordVisualTransformation(),
@@ -134,11 +136,11 @@ fun SignupScreen(navController: NavController) {
                         OutlinedTextField(
                             value = confirmPassword,
                             onValueChange = { confirmPassword = it },
-                            label = { Text("Confirmer le mot de passe") },
+                            label = { Text(stringResource(R.string.confirm_password)) },
                             leadingIcon = {
                                 Icon(
                                     painter = painterResource(id = R.drawable.baseline_adb_24),
-                                    contentDescription = "Confirm Password Icon"
+                                    contentDescription = stringResource(R.string.confirm_password_icon_desc)
                                 )
                             },
                             visualTransformation = PasswordVisualTransformation(),
@@ -152,8 +154,10 @@ fun SignupScreen(navController: NavController) {
                         Button(
                             onClick = {
                                 if (password == confirmPassword && email.isNotBlank()) {
+                                    loading = true
                                     auth.createUserWithEmailAndPassword(email, password)
                                         .addOnCompleteListener { task ->
+                                            loading = false
                                             if (task.isSuccessful) {
                                                 val userId = auth.currentUser?.uid
                                                 if (userId != null) {
@@ -165,40 +169,53 @@ fun SignupScreen(navController: NavController) {
 
                                                     userRef.set(userData)
                                                         .addOnSuccessListener {
-                                                            Toast.makeText(context, "Inscription réussie", Toast.LENGTH_SHORT).show()
-                                                            navController.navigate("Login")
+                                                            Toast.makeText(context,
+                                                                context.getString(R.string.signup_success),
+                                                                Toast.LENGTH_SHORT).show()
+                                                            navController.navigate(RecipeApp.Login.name) {
+                                                                popUpTo(RecipeApp.Signup.name) { inclusive = true }
+                                                            }
                                                         }
                                                         .addOnFailureListener { e ->
-                                                            Toast.makeText(context, "Erreur Firestore: ${e.message}",
+                                                            Toast.makeText(context,
+                                                                context.getString(R.string.firestore_error, e.message),
                                                                 Toast.LENGTH_SHORT).show()
                                                         }
                                                 }
                                             } else {
-                                                val errorMessage = task.exception?.message ?: "Une erreur s'est produite"
+                                                val errorMessage = task.exception?.message ?:
+                                                context.getString(R.string.general_error)
                                                 Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
                                             }
                                         }
                                 } else {
-                                    Toast.makeText(context, "Les mots de passe ne correspondent pas", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context,
+                                        context.getString(R.string.passwords_mismatch),
+                                        Toast.LENGTH_SHORT).show()
                                 }
                             }) {
-                            Text(text = if (loading) "Inscription..." else "S'inscrire", fontSize = 18.sp)
+                            Text(
+                                text = stringResource(
+                                    if (loading) R.string.signing_up else R.string.signup_button
+                                ),
+                                fontSize = 18.sp
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(20.dp))
 
                         Row {
                             Text(
-                                text = "Déjà un compte? ",
+                                text = stringResource(R.string.already_have_account),
                                 fontSize = 18.sp,
                                 color = colorResource(id = R.color.black)
                             )
                             Text(
-                                text = "Connecte-toi !",
+                                text = stringResource(R.string.login_now),
                                 fontSize = 18.sp,
                                 color = colorResource(id = R.color.orange),
                                 modifier = Modifier.clickable {
-                                    navController.navigate("Login")
+                                    navController.navigate(RecipeApp.Login.name)
                                 }
                             )
                         }
