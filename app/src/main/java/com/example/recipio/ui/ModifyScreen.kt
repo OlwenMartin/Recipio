@@ -55,7 +55,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -66,6 +65,9 @@ import com.example.recipio.data.Ingredient
 import com.example.recipio.data.Recipe
 import com.example.recipio.viewmodel.RecipeViewModel
 import java.io.File
+import android.Manifest
+import android.media.MediaScannerConnection
+import android.content.Context
 
 @Composable
 fun ModifyScreen(
@@ -205,17 +207,32 @@ fun ModifyScreen(
                 var photoUri by remember { mutableStateOf<Uri?>(null) }
                 var showDialog by remember { mutableStateOf(false) }
 
-                // Ajouter l'image à la galerie (MediaStore)
-                fun addImageToGallery(uri: Uri) {
-                    val resolver = context.contentResolver
-                    val values = ContentValues().apply {
-                        put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000)
-                        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-                        put(MediaStore.Images.Media.DATA, uri.path) // Ajoute le chemin de l'image
+                fun uriToFile(uri: Uri, context: Context): File? {
+                    return try {
+                        val cursor = context.contentResolver.query(uri, arrayOf(MediaStore.Images.Media.DATA), null, null, null)
+                        cursor?.use {
+                            if (it.moveToFirst()) {
+                                val columnIndex = it.getColumnIndex(MediaStore.Images.Media.DATA)
+                                val path = it.getString(columnIndex)
+                                File(path)
+                            } else null
+                        }
+                    } catch (e: Exception) {
+                        null
                     }
+                }
 
-                    // Insérer dans la galerie via MediaStore
-                    resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+                // Ajouter l'image à la galerie (MediaStore)
+                fun addImageToGallery(uri: Uri, context: Context) {
+                    val file = uriToFile(uri, context)
+                    file?.let {
+                        MediaScannerConnection.scanFile(
+                            context,
+                            arrayOf(it.absolutePath),
+                            arrayOf("image/jpeg"),
+                            null
+                        )
+                    }
                 }
 
                 // Launcher pour ouvrir le sélecteur d'images
@@ -242,7 +259,7 @@ fun ModifyScreen(
                             copy = copy.copy(imageUri = it)
 
                             // Ajouter la photo au MediaStore (Galerie)
-                            addImageToGallery(it)
+                            addImageToGallery(it, context)
                         }
                     }
                 }
@@ -261,6 +278,18 @@ fun ModifyScreen(
                         "${context.packageName}.provider", // Assure-toi que cela correspond à ce qui est dans le manifeste
                         file
                     )
+                }
+
+                val cameraPermissionLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission()
+                ) { isGranted ->
+                    if (isGranted) {
+                        val uri = createImageUri()
+                        photoUri = uri
+                        cameraLauncher.launch(uri)
+                    } else {
+                        Toast.makeText(context, "Permission caméra refusée", Toast.LENGTH_SHORT).show()
+                    }
                 }
 
 
@@ -301,9 +330,7 @@ fun ModifyScreen(
                             dismissButton = {
                                 TextButton(onClick = {
                                     showDialog = false
-                                    val uri = createImageUri()
-                                    photoUri = uri
-                                    cameraLauncher.launch(uri)
+                                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                                 }) {
                                     Text("Caméra")
                                 }
