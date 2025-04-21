@@ -88,6 +88,23 @@ class RecipeChatViewModel(
         // Rechercher des recettes dans les données disponibles
         val recipes = recipeViewModel?.uiState?.value?.recipes ?: emptyList()
 
+        // Pattern pour détecter les questions sur les ingrédients d'une recette
+        val ingredientQuestionPattern = Regex("(?:quel(?:s|le)?|quoi) (?:sont|est) les? ingrédients? (?:pour|de) (?:ma|mon|la|le) (.+)\\??")
+        val matchResult = ingredientQuestionPattern.find(lowerText)
+
+        // Si c'est une question sur les ingrédients d'une recette
+        if (matchResult != null) {
+            val recipeName = matchResult.groupValues[1].trim() // Extraire le nom de la recette
+
+            // Chercher la recette par nom
+            val recipe = recipes.find { it.name.lowercase().contains(recipeName) }
+            if (recipe != null) {
+                return listIngredientsForRecipe(recipe)
+            } else {
+                return "Je ne trouve pas de recette nommée '$recipeName' dans ma base de données."
+            }
+        }
+
         // Extraire les noms de recettes mentionnés dans la question
         val mentionedRecipeName = extractRecipeName(lowerText, recipes)
 
@@ -189,11 +206,23 @@ class RecipeChatViewModel(
             "recette", "avec", "ingrédient", "trouve", "cherche", "moi", "une", "un", "des", "les",
             "qui", "contient", "contenant", "utilise", "utilisant", "à", "a", "de", "du", "la", "le",
             "pour", "et", "ou", "je", "tu", "il", "nous", "vous", "ils", "ce", "cette", "ces",
-            "est-ce", "que", "quoi", "comment", "combien", "pourquoi", "dans", "sur", "sous"
+            "est-ce", "que", "quoi", "comment", "combien", "pourquoi", "dans", "sur", "sous",
+            "j'ai", "j'avais", "j'utilise", "j'aimerais", "j'aime", "j'adorerais", "j'adore"
         )
 
-        // Diviser la requête en mots
-        val words = query.lowercase().split(Regex("[\\s,;:.!?]+"))
+        // Phrases communes à traiter spécialement
+        val phrases = listOf("j'ai des", "j'ai du", "j'ai de la", "j'ai d'", "j'ai")
+
+        // Prétraiter la requête pour enlever les phrases communes
+        var processedQuery = query.lowercase()
+        for (phrase in phrases) {
+            if (processedQuery.contains(phrase)) {
+                processedQuery = processedQuery.replace(phrase, "")
+            }
+        }
+
+        // Diviser la requête prétraitée en mots
+        val words = processedQuery.trim().split(Regex("[\\s,;:.!?]+"))
 
         // Filtrer les mots communs pour trouver des ingrédients potentiels
         return words.filter { word ->
