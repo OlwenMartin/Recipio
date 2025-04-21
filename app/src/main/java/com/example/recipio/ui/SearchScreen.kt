@@ -42,48 +42,57 @@ import coil.compose.AsyncImage
 import com.example.recipio.R
 import com.example.recipio.RecipeApp
 import com.example.recipio.data.Recipe
+import com.example.recipio.data.RecipeField
+import kotlinx.coroutines.flow.update
 
 @Composable
 fun SearchScreen(
-    recipes : List<Recipe>,
-    onValueChanged : (String) -> Unit,
+    recipes: List<Recipe>,
     navigate: (String) -> Unit,
-    searchBarHidden: Boolean
-){
+) {
+    var searchText by remember { mutableStateOf("") }
+
+    // Liste filtrée selon le texte de recherche
+    val filteredList = if (searchText.isEmpty()) {
+        recipes
+    } else {
+        recipes.filter { it.name.contains(searchText, ignoreCase = true) }
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize()
     ) {
-        if(!searchBarHidden) {
-            SearchBar(onValueChanged, modifier = Modifier.padding(bottom = 10.dp))
-        }
+        SearchBar(
+            onValueChanged = { searchText = it },
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize()
-                .verticalScroll(
-                    rememberScrollState()
-                ).padding(top = 30.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(top = 30.dp)
         ) {
-
-            for (recipe in recipes) {
+            for (recipe in filteredList) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .padding(20.dp)
                         .clickable {
                             navigate("${RecipeApp.Recipe.name}/${recipe.id}")
                         }
                 ) {
-                    if(recipe.imageUrl != "") {
+                    if (recipe.imageUrl != "") {
                         AsyncImage(
                             model = recipe.imageUrl,
                             contentDescription = "Image chargée depuis une URI",
                             modifier = Modifier.size(120.dp)
                         )
-                    }
-                    else {
+                    } else {
                         Image(
                             painter = painterResource(id = R.drawable.default_dish_image),
                             contentDescription = recipe.name,
@@ -100,6 +109,7 @@ fun SearchScreen(
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

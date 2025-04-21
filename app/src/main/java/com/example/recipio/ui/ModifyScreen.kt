@@ -1,5 +1,6 @@
 package com.example.recipio.ui
 
+
 import android.content.ContentValues
 import androidx.compose.material3.AlertDialog
 import android.net.Uri
@@ -82,6 +83,7 @@ fun ModifyScreen(
     val focusManager = LocalFocusManager.current
     var copy by remember { mutableStateOf(recipe) }
     val context = LocalContext.current
+    val recette_sup= stringResource(R.string.recipe_deleted)
 
     Column(
         modifier = modifier
@@ -103,7 +105,7 @@ fun ModifyScreen(
         ) {
             if(isNew) {
                 Text(
-                    text = "Nouvelle recette",
+                    text = stringResource(R.string.new_recipe),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF88B04B)
@@ -111,7 +113,7 @@ fun ModifyScreen(
             }
             else{
                 Text(
-                    text = "Modifier la recette",
+                    text = stringResource(R.string.modify_recipe),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF88B04B)
@@ -120,7 +122,7 @@ fun ModifyScreen(
                     viewModel.deleteRecipe(
                         recipeId = copy.id,
                         onSuccess = {
-                            Toast.makeText(context, "Recette supprimée", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, recette_sup, Toast.LENGTH_SHORT).show()
 
                             // Rafraîchir la liste des recettes
                             viewModel.getRecipes()
@@ -139,7 +141,7 @@ fun ModifyScreen(
                         }
                     )
                 }) {
-                    Icon(Icons.Default.Delete, contentDescription = "Supprimer")
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
                 }
             }
             if(!isNew) {
@@ -147,7 +149,7 @@ fun ModifyScreen(
                 IconButton(onClick = {
                     viewModel.updateRecipe(copy,
                         onSuccess = {
-                            Toast.makeText(context, "Recette sauvegardée", Toast.LENGTH_SHORT)
+                            Toast.makeText(context, context.getString(R.string.recipe_saved), Toast.LENGTH_SHORT)
                                 .show()
 
                             // Reload all recipes
@@ -161,13 +163,13 @@ fun ModifyScreen(
                             }
                         },
                         onError = { e ->
-                            Toast.makeText(context, "Erreur: ${e.message}", Toast.LENGTH_LONG)
+                            Toast.makeText(context, context.getString(R.string.delete_error, e.message), Toast.LENGTH_LONG)
                                 .show()
                         }
                     )
                 })
                 {
-                    Icon(Icons.Default.Check, contentDescription = "Sauvegarder")
+                    Icon(Icons.Default.Check, contentDescription = stringResource(R.string.save))
                 }
             }
             else {
@@ -191,7 +193,7 @@ fun ModifyScreen(
                     )
                 })
                 {
-                    Icon(Icons.Default.Check, contentDescription = "Ajouter")
+                    Icon(Icons.Default.Check, contentDescription = stringResource(R.string.add_recipe))
                 }
             }
         }
@@ -302,7 +304,7 @@ fun ModifyScreen(
                     if (copy.imageUri != Uri.EMPTY) {
                         AsyncImage(
                             model = copy.imageUri,
-                            contentDescription = "Image chargée depuis une URI",
+                            contentDescription = stringResource(R.string.loaded_image),
                             modifier = Modifier.size(200.dp)
                         )
                     }
@@ -357,7 +359,7 @@ fun ModifyScreen(
 
                 // UI : sélection de la catégorie
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Catégorie : ")
+                    Text(stringResource(R.string.category))
 
                     Text(
                         text = copy.category,
@@ -365,7 +367,7 @@ fun ModifyScreen(
                     )
 
                     IconButton(onClick = { expanded = !expanded }) {
-                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Choisir une catégorie")
+                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = stringResource(R.string.choose_category))
                     }
 
                     DropdownMenu(
@@ -392,7 +394,7 @@ fun ModifyScreen(
                 OutlinedTextField(
                     value = copy.name,
                     onValueChange = { copy = copy.copy(name = it) },
-                    label = { Text("Nom") },
+                    label = { Text(stringResource(R.string.name)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -402,7 +404,7 @@ fun ModifyScreen(
                 OutlinedTextField(
                     value = copy.description,
                     onValueChange = { copy = copy.copy(description = it) },
-                    label = { Text("Description") },
+                    label = { Text(stringResource(R.string.description)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -414,11 +416,11 @@ fun ModifyScreen(
 
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("Tags:", modifier = Modifier.padding(end = 8.dp))
+                            Text(stringResource(R.string.tags), modifier = Modifier.padding(end = 8.dp))
                             OutlinedTextField(
                                 value = newTag,
                                 onValueChange = { newTag = it },
-                                label = { Text("Nouveau tag") },
+                                label = { stringResource(R.string.new_tag) },
                                 modifier = Modifier.weight(1f),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                             )
@@ -432,7 +434,7 @@ fun ModifyScreen(
                                     }
                                 }
                             ) {
-                                Icon(Icons.Default.Add, contentDescription = "Ajouter un tag")
+                                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_tag))
                             }
                         }
 
@@ -458,7 +460,7 @@ fun ModifyScreen(
 
                 //Time
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Temps : ")
+                    Text(stringResource(R.string.time))
                     OutlinedTextField(
                         value = copy.time.toString(),
                         onValueChange = {
@@ -472,18 +474,18 @@ fun ModifyScreen(
                             copy = copy.copy(time = time)
 
                                         },
-                        label = { Text("Time in minutes") },
+                        label = { Text(stringResource(R.string.time_in_minutes)) },
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                         )
-                    Text("min")
+                    Text(stringResource(R.string.minutes))
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Nombre de personnes
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Pour : ")
+                    Text(stringResource(R.string.for_people))
                     var number:Int by remember { mutableStateOf(4) }
                     IconButton(onClick = {
                         if (number > 1) {
@@ -500,7 +502,7 @@ fun ModifyScreen(
                     }) {
                         Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Augmenter")
                     }
-                    Text(" personnes")
+                    Text(stringResource(R.string.people))
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -509,13 +511,13 @@ fun ModifyScreen(
                 Column {
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Ingrédients:")
+                        Text(stringResource(R.string.ingredients))
                         IconButton(onClick = {
                             val updatedIngredients = copy.ingredients + Ingredient("", 0.0, "")
                             copy = copy.copy(ingredients = updatedIngredients)
                             onRecipeChange(copy)
                         }) {
-                            Icon(Icons.Default.Add, contentDescription = "Ajouter un ingrédient")
+                            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_ingredient))
                         }
                     }
 
@@ -529,7 +531,7 @@ fun ModifyScreen(
                                     copy = copy.copy(ingredients = updated)
                                     onRecipeChange(copy)
                                 },
-                                label = { Text("Ingredient") },
+                                label = { Text(stringResource(R.string.ingredient))  },
                                 modifier = Modifier
                                     .padding(4.dp)
                                     .weight(1f)
@@ -546,7 +548,7 @@ fun ModifyScreen(
                                     }
                                 },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                label = { Text("Quantity") },
+                                label = { Text(stringResource(R.string.quantity))  },
                                 modifier = Modifier
                                     .padding(4.dp)
                                     .width(80.dp)
@@ -559,7 +561,7 @@ fun ModifyScreen(
                                     copy = copy.copy(ingredients = updated)
                                     onRecipeChange(copy)
                                 },
-                                label = { Text("Unit") },
+                                label = { Text(stringResource(R.string.unit))  },
                                 modifier = Modifier
                                     .padding(4.dp)
                                     .width(80.dp)
@@ -575,7 +577,7 @@ fun ModifyScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Delete,
-                                    contentDescription = "Supprimer l'ingrédient",
+                                    contentDescription = stringResource(R.string.delete_ingredient),
                                     tint = Color.Red
                                 )
                             }
@@ -589,13 +591,13 @@ fun ModifyScreen(
                 // Étapes
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Étapes:")
+                        Text(stringResource(R.string.steps))
                         IconButton(onClick = {
                             val updatedSteps = copy.steps + ""
                             copy = copy.copy(steps = updatedSteps)
                             onRecipeChange(copy)
                         }) {
-                            Icon(Icons.Default.Add, contentDescription = "Ajouter une étape")
+                            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_step))
                         }
                     }
 
@@ -614,7 +616,7 @@ fun ModifyScreen(
                                     copy = copy.copy(steps = updated)
                                     onRecipeChange(copy)
                                 },
-                                label = { Text("Étape ${index + 1}") },
+                                label = { Text(stringResource(R.string.step, index + 1)) },
                                 modifier = Modifier
                                     .padding(4.dp)
                                     .weight(1f)
@@ -630,7 +632,7 @@ fun ModifyScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Delete,
-                                    contentDescription = "Supprimer l'étape",
+                                    contentDescription = stringResource(R.string.delete_step),
                                     tint = Color.Red
                                 )
                             }

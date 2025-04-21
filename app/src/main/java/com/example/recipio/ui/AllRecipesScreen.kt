@@ -1,5 +1,4 @@
 package com.example.recipio.ui
-import RecipeItem
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -11,11 +10,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.recipio.R
 import com.example.recipio.viewmodel.RecipeViewModel
 
 @Composable
@@ -42,7 +43,7 @@ fun AllRecipesScreen(
                 .padding(bottom = 80.dp)
         ) {
             Text(
-                text = "Toutes les recettes",
+                text = stringResource(R.string.all_recipes),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -54,7 +55,7 @@ fun AllRecipesScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Aucune recette pour l'instant",
+                        text = stringResource(R.string.no_recipes_yet),
                         fontSize = 18.sp
                     )
                 }
@@ -82,7 +83,7 @@ fun AllRecipesScreen(
             contentAlignment = Alignment.Center
         ) {
             Button(onClick = { navController.popBackStack() }) {
-                Text("Retour")
+                Text(stringResource(R.string.back))
             }
         }
     }

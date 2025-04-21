@@ -55,6 +55,9 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.generativeai)
+    implementation(libs.androidx.datastore.core.android)
+    implementation(libs.play.services.nearby)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -64,4 +67,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.coil.compose)
     implementation("com.google.android.gms:play-services-auth:21.3.0")
+    implementation("androidx.compose.material:material-icons-extended:<version>")
+
 }

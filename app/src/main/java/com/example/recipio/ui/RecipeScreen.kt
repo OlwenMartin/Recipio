@@ -80,7 +80,7 @@ fun RecipeScreen(
                     text = recipe.name,
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF88B04B) // Vert clair
+                    color = Color(0xFF88B04B)
                 )
             }
 

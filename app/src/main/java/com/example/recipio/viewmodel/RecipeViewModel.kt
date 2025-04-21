@@ -28,7 +28,6 @@ import java.io.FileOutputStream
 import java.util.UUID
 
 class RecipeViewModel : ViewModel() {
-    private val _recipes = MutableStateFlow<List<Recipe>>(emptyList())
     private val _uiState = MutableStateFlow(RecipeUiState())
     val uiState: StateFlow<RecipeUiState> = _uiState
     var recipes : List<Recipe> = emptyList()
@@ -68,7 +67,13 @@ class RecipeViewModel : ViewModel() {
                         description = document.getString("description") ?: "",
                         tags = document.get("tags") as? List<String> ?: listOf(),
                         steps = document.get("steps") as? List<String> ?: listOf(),
-                        ingredients = listOf(Ingredient("ing1", 30.0, "g")), // You might need to update this
+                        ingredients = (document.get("ingredients") as? List<Map<String, Any>>)?.map { map ->
+                            Ingredient(
+                                name = map["name"] as? String ?: "",
+                                amount = (map["quantity"] as? Number)?.toDouble() ?: 0.0,
+                                unit = map["unit"] as? String ?: ""
+                            )
+                        } ?: listOf(),
                         numberOfPeople = document.getLong("numberOfPeople")?.toInt() ?: 4,
                         time = document.getLong("time")?.toInt() ?: 30,
                         notes = document.getString("notes") ?: "",
@@ -102,7 +107,6 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
-    // Ajout de .orderby dans la fct déjà existante a crée des erreurs donc je l'ai mis là
     private suspend fun fetchRecentRecipes(): List<Recipe> {
         val db = Firebase.firestore
         val user = FirebaseAuth.getInstance().currentUser
@@ -178,7 +182,14 @@ class RecipeViewModel : ViewModel() {
                     description = document.getString("description") ?: "",
                     tags = document.get("tags") as? List<String> ?: listOf(),
                     steps = document.get("steps") as? List<String> ?: listOf(),
-                    ingredients = listOf(Ingredient("ing1", 30.0, "g")),
+                    //ingredients = listOf(Ingredient("ing1", 30.0, "g")),
+                    ingredients = (document.get("ingredients") as? List<Map<String, Any>>)?.map { map ->
+                        Ingredient(
+                            name = map["name"] as? String ?: "",
+                            amount = (map["quantity"] as? Number)?.toDouble() ?: 0.0,
+                            unit = map["unit"] as? String ?: ""
+                        )
+                    } ?: listOf(),
                     numberOfPeople = document.getLong("numberOfPeople")?.toInt() ?: 4,
                     time = document.getLong("time")?.toInt() ?: 30,
                     notes = document.getString("notes") ?: "",
@@ -267,7 +278,6 @@ class RecipeViewModel : ViewModel() {
 
                 Log.d("Recipio", "Recette ajoutée avec succès à l'utilisateur")
 
-                // Ajouter explicitement la nouvelle recette à l'état local
                 val newRecipe = recipe.copy(id = newRecipeId)
                 _uiState.update { currentState ->
                     val updatedRecipes = currentState.recipes + newRecipe

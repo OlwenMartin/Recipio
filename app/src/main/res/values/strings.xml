@@ -3,11 +3,12 @@
     <string name="app_logo" translatable="false">Logo</string>
     <string name="search">Search</string>
     <string name="home">Home</string>
+    <string name="settings" translatable="false">Paramètres</string>
     <string name="modify" translatable="false">Modify</string>
     <string name="search_text">Search...</string>
     <string name="recipe">Recipe</string>
     <string name="login">Login</string>
-    <string name="signup">Sign up</string>
+    <string name="signup">Créer un compte</string>
     <string name="add_image">Add image</string>
     <string name="splash">Splash</string>
     <string name="add_recipe_success">Recipe added successfully!</string>
@@ -30,4 +31,81 @@
     <string name="password_icon" translatable="false">Password Icon</string>
     <string name="no_account" translatable="false">Pas de compte?</string>
     <string name="sinscrire" translatable="false">Inscris-toi !</string>
+
+    <!-- All recipes screen -->
+    <string name="no_recipes_yet" translatable="false">Aucune recette pour l\'instant</string>
+    <string name="back" translatable="false">Retour</string>
+
+    <!-- signup screen -->
+    <string name="background_image_desc" translatable="false">Image d\'arrière-plan</string>
+    <string name="confirm_password" translatable="false">Confirmer le mot de passe</string>
+    <string name="confirm_password_icon_desc" translatable="false">Icône de confirmation de mot de passe</string>
+    <string name="signup_success" translatable="false">Inscription réussie</string>
+    <string name="firestore_error" translatable="false">Erreur Firestore: %1$s</string>
+    <string name="general_error" translatable="false">Une erreur s\'est produite</string>
+    <string name="passwords_mismatch" translatable="false">Les mots de passe ne correspondent pas</string>
+    <string name="signing_up" translatable="false">Inscription…</string>
+    <string name="signup_button" translatable="false">S\'inscrire</string>
+    <string name="already_have_account" translatable="false">Déjà un compte? </string>
+    <string name="login_now" translatable="false">Connecte-toi !</string>
+
+    <!-- Pour SettingsScreen -->
+    <string name="user_info">Informations utilisateur</string>
+    <string name="email_display">Email: %1$s</string>
+    <string name="email_not_available">Non disponible</string>
+    <string name="app_settings">Paramètres de l\'application</string>
+    <string name="notifications">Notifications</string>
+    <string name="dark_mode">Mode sombre</string>
+    <string name="logout">Se déconnecter</string>
+    <string name="confirm_logout">Confirmer la déconnexion</string>
+    <string name="logout_confirmation_message">Êtes-vous sûr de vouloir vous déconnecter ?</string>
+    <string name="confirm">Confirmer</string>
+    <string name="cancel">Annuler</string>
+
+    <!-- Pour ModifyScreen -->
+    <string name="new_recipe">Nouvelle recette</string>
+    <string name="modify_recipe">Modifier la recette</string>
+    <string name="recipe_deleted">Recette supprimée</string>
+    <string name="delete_error">Erreur lors de la suppression: %1$s</string>
+    <string name="recipe_saved">Recette sauvegardée</string>
+    <string name="error">Erreur: %1$s</string>
+    <string name="delete">Supprimer</string>
+    <string name="save">Sauvegarder</string>
+    <string name="add_recipe">Ajouter</string>
+    <string name="category">Catégorie : </string>
+    <string name="choose_category">Choisir une catégorie</string>
+    <string name="name">Nom</string>
+    <string name="description">Description</string>
+    <string name="tags">Tags:</string>
+    <string name="new_tag">Nouveau tag</string>
+    <string name="add_tag">Ajouter un tag</string>
+    <string name="remove">Supprimer</string>
+    <string name="time">Temps : </string>
+    <string name="time_in_minutes">Time in minutes</string>
+    <string name="minutes">min</string>
+    <string name="for_people">Pour : </string>
+    <string name="decrease">Diminuer</string>
+    <string name="increase">Augmenter</string>
+    <string name="people">personnes</string>
+    <string name="ingredients">Ingrédients:</string>
+    <string name="add_ingredient">Ajouter un ingrédient</string>
+    <string name="ingredient">Ingredient</string>
+    <string name="quantity">Quantity</string>
+    <string name="unit">Unit</string>
+    <string name="delete_ingredient">Supprimer l\'ingrédient</string>
+    <string name="steps">Étapes:</string>
+    <string name="add_step">Ajouter une étape</string>
+    <string name="step">Étape %1$d</string>
+    <string name="delete_step">Supprimer l\'étape</string>
+    <string name="additional_notes">Notes supplémentaires</string>
+    <string name="loaded_image">Image chargée depuis une URI</string>
+
+    <!-- chatbot -->
+    <string name="chat_with_assistant" translatable="false">Discuter avec l\'assistant</string>
+    <string name="recipe_assistant" translatable="false">Assistant de recettes</string>
+    <string name="close" translatable="false">Fermer</string>
+    <string name="send" translatable="false">Envoyer</string>
+    <string name="ask_about_recipes" translatable="false">Posez une question sur les recettes...</string>
+    <string name="no_recipes_available" translatable="false">Aucune recette disponible</string>
+    <string name="recipe_question_hint" translatable="false">Comment puis-je vous aider avec vos recettes ?</string>
 </resources>
