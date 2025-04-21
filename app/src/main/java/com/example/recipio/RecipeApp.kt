@@ -152,18 +152,15 @@ fun RecipeApp(
                     viewModel.filterRecipes(key, value)
                     SearchScreen(
                         recipes = uiState.filteredRecipes,
-                        onValueChanged = { filter -> navController.navigate("${RecipeApp.Search.name}/Name/${filter}")},
-                        navigate = {location -> navController.navigate(location)},
-                        searchBarHidden = true
+                        navigate = {location -> navController.navigate(location)}
                     )
                 }
 
                 composable(route = RecipeApp.Search.name) {
+                    viewModel.filterRecipes("Name", "")
                     SearchScreen(
                         recipes = uiState.filteredRecipes,
-                        navigate = {location -> navController.navigate(location)},
-                        onValueChanged = {value -> viewModel.filterRecipes(RecipeField.Name.toString(), value)},
-                        searchBarHidden = false)
+                        navigate = {location -> navController.navigate(location)})
                 }
 
                 composable(route = "${RecipeApp.Recipe.name}/{recipeId}") { backStackEntry ->
@@ -244,10 +241,18 @@ fun BottomNavigationBar(navController: NavHostController) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Catégories de recettes avec la même structure
+            val accentColor = 0xFF436118
             listOf("Entrée", "Plat", "Dessert", "Autre").forEach { category ->
                 Text(
                     text = category,
-                    color = Color.White,
+                    color = if (currentRoute.toString() == "${RecipeApp.Search.name}/{key}/{value}" &&
+                        currentBackStackEntry?.arguments?.getString("key") == "Category" &&
+                        currentBackStackEntry?.arguments?.getString("value") == category) {
+                        Color(accentColor)
+                    }
+                    else {
+                        Color.White
+                    },
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
@@ -261,7 +266,7 @@ fun BottomNavigationBar(navController: NavHostController) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_display_settings_24),
                 contentDescription = "Settings",
-                tint = if (currentRoute == RecipeApp.Settings.name) Color(0xFF436118) else Color.White,
+                tint = if (currentRoute == RecipeApp.Settings.name) Color(accentColor) else Color.White,
                 modifier = Modifier
                     .size(30.dp)
                     .clip(RoundedCornerShape(8.dp))
@@ -273,11 +278,23 @@ fun BottomNavigationBar(navController: NavHostController) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_home_24),
                 contentDescription = "Home",
-                tint = if (currentRoute == RecipeApp.Home.name) Color(0xFF436118) else Color.White,
+                tint = if (currentRoute == RecipeApp.Home.name) Color(accentColor) else Color.White,
                 modifier = Modifier
                     .size(30.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .clickable { navController.navigate(RecipeApp.Home.name) }
+                    .padding(2.dp)
+            )
+
+            // Icône accueil
+            Icon(
+                painter = painterResource(id = R.drawable.search_icon),
+                contentDescription = "Add",
+                tint = if (currentRoute == RecipeApp.Search.name) Color(accentColor) else Color.White,
+                modifier = Modifier
+                    .size(25.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable { navController.navigate(RecipeApp.Search.name) }
                     .padding(2.dp)
             )
         }
