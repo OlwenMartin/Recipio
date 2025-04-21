@@ -1,6 +1,11 @@
 package com.example.recipio.ui
 
+
+import android.content.ContentValues
+import androidx.compose.material3.AlertDialog
 import android.net.Uri
+import android.os.Environment
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -34,6 +39,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +56,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -58,6 +65,10 @@ import com.example.recipio.RecipeApp
 import com.example.recipio.data.Ingredient
 import com.example.recipio.data.Recipe
 import com.example.recipio.viewmodel.RecipeViewModel
+import java.io.File
+import android.Manifest
+import android.media.MediaScannerConnection
+import android.content.Context
 
 @Composable
 fun ModifyScreen(
@@ -195,7 +206,36 @@ fun ModifyScreen(
         ) {
             item {
                 var imageUri by remember { mutableStateOf<Uri?>(null) }
-                var bitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
+                var photoUri by remember { mutableStateOf<Uri?>(null) }
+                var showDialog by remember { mutableStateOf(false) }
+
+                fun uriToFile(uri: Uri, context: Context): File? {
+                    return try {
+                        val cursor = context.contentResolver.query(uri, arrayOf(MediaStore.Images.Media.DATA), null, null, null)
+                        cursor?.use {
+                            if (it.moveToFirst()) {
+                                val columnIndex = it.getColumnIndex(MediaStore.Images.Media.DATA)
+                                val path = it.getString(columnIndex)
+                                File(path)
+                            } else null
+                        }
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+
+                // Ajouter l'image à la galerie (MediaStore)
+                fun addImageToGallery(uri: Uri, context: Context) {
+                    val file = uriToFile(uri, context)
+                    file?.let {
+                        MediaScannerConnection.scanFile(
+                            context,
+                            arrayOf(it.absolutePath),
+                            arrayOf("image/jpeg"),
+                            null
+                        )
+                    }
+                }
 
                 // Launcher pour ouvrir le sélecteur d'images
                 val launcher = rememberLauncherForActivityResult(
@@ -208,22 +248,103 @@ fun ModifyScreen(
                         copy = copy.copy(imageUri = uri)
                     }
                 }
-                // Image modifiable
+
+                // Launcher pour prendre une photo avec la caméra
+                val cameraLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.TakePicture()
+                ) { success ->
+                    if (success) {
+                        // Ajouter la photo à la galerie
+                        photoUri?.let {
+                            // Mettre à jour imageUri avec la photo prise
+                            imageUri = it
+                            copy = copy.copy(imageUri = it)
+
+                            // Ajouter la photo au MediaStore (Galerie)
+                            addImageToGallery(it, context)
+                        }
+                    }
+                }
+
+                // Fonction pour créer un fichier temporaire et en extraire l'Uri
+                fun createImageUri(): Uri {
+                    // Utilisation du dossier Pictures dans le stockage externe
+                    val file = File(
+                        context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                        "photo_${System.currentTimeMillis()}.jpg"
+                    )
+
+                    // Obtenir l'URI du fichier en utilisant FileProvider
+                    return FileProvider.getUriForFile(
+                        context,
+                        "${context.packageName}.provider", // Assure-toi que cela correspond à ce qui est dans le manifeste
+                        file
+                    )
+                }
+
+                val cameraPermissionLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission()
+                ) { isGranted ->
+                    if (isGranted) {
+                        val uri = createImageUri()
+                        photoUri = uri
+                        cameraLauncher.launch(uri)
+                    } else {
+                        Toast.makeText(context, "Permission caméra refusée", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { launcher.launch("image/*") },
+                        .clickable { showDialog = true }, // Ouvre le menu au clic
                     contentAlignment = Alignment.Center
                 ) {
-                    if(copy.imageUri != Uri.EMPTY) {
+                    if (copy.imageUri != Uri.EMPTY) {
                         AsyncImage(
                             model = copy.imageUri,
                             contentDescription = stringResource(R.string.loaded_image),
                             modifier = Modifier.size(200.dp)
                         )
                     }
-                    else{
+                    else if(copy.imageUrl != "") {
+                        AsyncImage(
+                            model = copy.imageUrl,
+                            contentDescription = "Image chargée depuis une URL",
+                            modifier = Modifier.size(200.dp)
+                        )
+                    }else {
                         Text(stringResource(R.string.add_image))
+                    }
+
+                    // Menu de choix
+                    if (showDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showDialog = false },
+                            title = {
+                                Text("Choisir une option")
+                            },
+                            text = {
+                                Text("Sélectionne une source d'image")
+                            },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    showDialog = false
+                                    launcher.launch("image/*")
+                                }) {
+                                    Text("Galerie")
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = {
+                                    showDialog = false
+                                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                                }) {
+                                    Text("Caméra")
+                                }
+                            }
+                        )
                     }
                 }
 

@@ -1,5 +1,6 @@
 package com.example.recipio.viewmodel
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -9,6 +10,7 @@ import com.example.recipio.data.Recipe
 import com.example.recipio.data.RecipeField
 import com.example.recipio.data.RecipeUiState
 import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
@@ -21,6 +23,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.io.File
+import java.io.FileOutputStream
 import java.util.UUID
 
 class RecipeViewModel : ViewModel() {
@@ -202,21 +206,45 @@ class RecipeViewModel : ViewModel() {
         }
     }
 
-    fun uploadImage(imageUri : Uri) : Task<String> {
+    fun uriToFile(context: Context, uri: Uri): File? {
+        return try {
+            val inputStream = context.contentResolver.openInputStream(uri) ?: return null
+            val tempFile = File.createTempFile("upload_", ".jpg", context.cacheDir)
+            val outputStream = FileOutputStream(tempFile)
+            inputStream.copyTo(outputStream)
+            inputStream.close()
+            outputStream.close()
+            tempFile
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun uploadImage(imageUri: Uri): Task<String> {
         val storage = FirebaseStorage.getInstance()
         val storageRef = storage.reference
-        var value = ""
         val fileRef = storageRef.child("images/${UUID.randomUUID()}.jpg")
+
+        Log.d("Recipio", "Uploading image to: ${fileRef.path}")  // Log le chemin
 
         return fileRef.putFile(imageUri)
             .continueWithTask { task ->
                 if (!task.isSuccessful) {
+                    Log.e("Recipio", "Upload failed: ${task.exception?.message}")  // Log erreur spécifique
                     throw task.exception ?: Exception("Upload failed")
                 }
+                Log.d("Recipio", "Upload successful, fetching download URL")
                 fileRef.downloadUrl
-            }.continueWith { it.result.toString() }
-
+            }.continueWith { task ->
+                if (task.isSuccessful) {
+                    Log.d("Recipio", "Download URL: ${task.result}")
+                } else {
+                    Log.e("Recipio", "Error getting download URL: ${task.exception?.message}")
+                }
+                task.result.toString()
+            }
     }
+
 
     fun addRecipeToUser(recipe: Recipe, onSuccess: (String) -> Unit, onError: (Exception) -> Unit) {
         val user = FirebaseAuth.getInstance().currentUser
