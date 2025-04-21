@@ -1,10 +1,23 @@
 package com.example.recipio.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -17,24 +30,72 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.recipio.R
+import com.example.recipio.RecipeApp
 import com.example.recipio.data.Recipe
 
 @Composable
 fun SearchScreen(
     recipes : List<Recipe>,
-    onValueChanged : (String) -> Unit
+    onValueChanged : (String) -> Unit,
+    navigate: (String) -> Unit,
+    searchBarHidden: Boolean
 ){
-    Column (horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()){
-        SearchBar(onValueChanged)
-        for (recipe in recipes){
-            Row{
-                Text(recipe.name)
-                Text(recipe.description)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        if(!searchBarHidden) {
+            SearchBar(onValueChanged, modifier = Modifier.padding(bottom = 10.dp))
+        }
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize()
+                .verticalScroll(
+                    rememberScrollState()
+                ).padding(top = 30.dp)
+        ) {
+
+            for (recipe in recipes) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(20.dp)
+                        .clickable {
+                            navigate("${RecipeApp.Recipe.name}/${recipe.id}")
+                        }
+                ) {
+                    if(recipe.imageUrl != "") {
+                        AsyncImage(
+                            model = recipe.imageUrl,
+                            contentDescription = "Image chargée depuis une URI",
+                            modifier = Modifier.size(120.dp)
+                        )
+                    }
+                    else {
+                        Image(
+                            painter = painterResource(id = R.drawable.default_dish_image),
+                            contentDescription = recipe.name,
+                            modifier = Modifier
+                                .size(120.dp)
+                                .clip(RoundedCornerShape(12.dp)),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(20.dp))
+                    Text(text = recipe.name, fontSize = 20.sp)
+                }
             }
         }
     }

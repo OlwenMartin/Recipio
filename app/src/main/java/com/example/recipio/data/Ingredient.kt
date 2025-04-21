@@ -1,7 +1,15 @@
 package com.example.recipio.data
 
-data class Ingredient (
-    val name : String,
-    val amount : Int,
-    val unit : String
-)
+data class Ingredient(
+    var name: String,
+    var amount : Double,
+    var unit: String
+) {
+    fun toMap(): Map<String, Any> {
+        return mapOf(
+            "name" to name,
+            "quantity" to amount,
+            "unit" to unit
+        )
+    }
+}

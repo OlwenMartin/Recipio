@@ -1,7 +1,33 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Recipio</string>
+    <string name="app_logo" translatable="false">Logo</string>
     <string name="search">Search</string>
     <string name="home">Home</string>
+    <string name="modify" translatable="false">Modify</string>
     <string name="search_text">Search...</string>
     <string name="recipe">Recipe</string>
+    <string name="login">Login</string>
+    <string name="signup">Sign up</string>
+    <string name="add_image">Add image</string>
+    <string name="splash">Splash</string>
+    <string name="add_recipe_success">Recipe added successfully!</string>
+    <string name="add_recipe_error">An error occurred while adding the recipe...</string>
+    <string name="recent_recipes" tools:ignore="MissingTranslation">Recettes Récentes</string>
+    <string name="favorites" translatable="false">Favoris</string>
+    <string name="all_recipes" translatable="false">Toutes les recettes</string>
+    <string name="add" translatable="false">Ajouter</string>
+    <string name="voir_plus" translatable="false">Voir plus</string>
+    <string name="description_uri" translatable="false">Image chargée depuis une URI</string>
+
+    <string name="connexion_reussie" translatable="false">Connexion réussie!</string>
+    <string name="echec_connexion" translatable="false">Échec de connexion</string>
+    <string name="bg" translatable="false">Background</string>
+    <string name="seconnecter" translatable="false">Se connecter</string>
+    <string name="connexion" translatable="false">Connexion...</string>
+    <string name="courriel" translatable="false">Courriel</string>
+    <string name="email_icon" translatable="false">Email Icon</string>
+    <string name="mot_de_passe" translatable="false">Mot de passe</string>
+    <string name="password_icon" translatable="false">Password Icon</string>
+    <string name="no_account" translatable="false">Pas de compte?</string>
+    <string name="sinscrire" translatable="false">Inscris-toi !</string>
 </resources>
