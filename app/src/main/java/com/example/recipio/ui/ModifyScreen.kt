@@ -305,7 +305,14 @@ fun ModifyScreen(
                             contentDescription = "Image chargée depuis une URI",
                             modifier = Modifier.size(200.dp)
                         )
-                    } else {
+                    }
+                    else if(copy.imageUrl != "") {
+                        AsyncImage(
+                            model = copy.imageUrl,
+                            contentDescription = "Image chargée depuis une URL",
+                            modifier = Modifier.size(200.dp)
+                        )
+                    }else {
                         Text(stringResource(R.string.add_image))
                     }
 
