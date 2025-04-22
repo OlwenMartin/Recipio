@@ -4,16 +4,21 @@ import com.example.recipio.ui.HomeScreen
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -222,82 +227,120 @@ fun RecipeApp(
         }
     }
 }
+
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
 
     BottomAppBar(
-        modifier = Modifier.fillMaxWidth(),
-        containerColor = Color(0xFFB6D08F),
-        tonalElevation = 4.dp
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = 8.dp
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 8.dp)
-                .padding(bottom = 8.dp),
+                .padding(horizontal = 8.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Catégories de recettes avec la même structure
-            val accentColor = 0xFF436118
-            listOf("Entrée", "Plat", "Dessert", "Autre").forEach { category ->
-                Text(
-                    text = category,
-                    color = if (currentRoute.toString() == "${RecipeApp.Search.name}/{key}/{value}" &&
-                        currentBackStackEntry?.arguments?.getString("key") == "Category" &&
-                        currentBackStackEntry?.arguments?.getString("value") == category) {
-                        Color(accentColor)
-                    }
-                    else {
-                        Color.White
-                    },
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
+            // Catégories de recettes
+            val categories = listOf("Entrée", "Plat", "Dessert", "Autre")
+
+            categories.forEach { category ->
+                val isSelected = currentRoute.toString() == "${RecipeApp.Search.name}/{key}/{value}" &&
+                        currentBackStackEntry?.arguments?.getString("key") == RecipeField.Category.toString() &&
+                        currentBackStackEntry?.arguments?.getString("value") == category
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .clickable { navController.navigate("${RecipeApp.Search.name}/Category/${category}") }
-                        .padding(vertical = 4.dp, horizontal = 8.dp)
-                )
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable {
+                            navController.navigate("${RecipeApp.Search.name}/${RecipeField.Category}/${category}")
+                        }
+                        .padding(horizontal = 4.dp)
+                ) {
+                    Text(
+                        text = category,
+                        color = if (isSelected)
+                            MaterialTheme.colorScheme.primary
+                        else
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        fontSize = 14.sp,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+
+                    // Indicateur de sélection
+                    if (isSelected) {
+                        Box(
+                            modifier = Modifier
+                                .width(40.dp)
+                                .height(3.dp)
+                                .background(
+                                    MaterialTheme.colorScheme.primary,
+                                    RoundedCornerShape(1.dp)
+                                )
+                        )
+                    }
+                }
             }
 
-            // Icône paramètres
-            Icon(
-                painter = painterResource(id = R.drawable.baseline_display_settings_24),
-                contentDescription = "Settings",
-                tint = if (currentRoute == RecipeApp.Settings.name) Color(accentColor) else Color.White,
+            // Séparateur vertical
+            Box(
                 modifier = Modifier
-                    .size(30.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .clickable { navController.navigate(RecipeApp.Settings.name) }
-                    .padding(2.dp)
+                    .width(1.dp)
+                    .height(24.dp)
+                    .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
             )
 
-            // Icône accueil
-            Icon(
-                painter = painterResource(id = R.drawable.baseline_home_24),
-                contentDescription = "Home",
-                tint = if (currentRoute == RecipeApp.Home.name) Color(accentColor) else Color.White,
-                modifier = Modifier
-                    .size(30.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .clickable { navController.navigate(RecipeApp.Home.name) }
-                    .padding(2.dp)
+            // Icônes de navigation
+            val navItems = listOf(
+                Triple(R.drawable.baseline_display_settings_24, "Settings", RecipeApp.Settings.name),
+                Triple(R.drawable.baseline_home_24, "Home", RecipeApp.Home.name),
+                Triple(R.drawable.search_icon, "Search", RecipeApp.Search.name)
             )
 
-            // Icône accueil
-            Icon(
-                painter = painterResource(id = R.drawable.search_icon),
-                contentDescription = "Add",
-                tint = if (currentRoute == RecipeApp.Search.name) Color(accentColor) else Color.White,
-                modifier = Modifier
-                    .size(25.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .clickable { navController.navigate(RecipeApp.Search.name) }
-                    .padding(2.dp)
-            )
+            navItems.forEach { (iconRes, description, route) ->
+                val isSelected = currentRoute == route
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable { navController.navigate(route) }
+                        .padding(horizontal = 4.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = iconRes),
+                        contentDescription = description,
+                        tint = if (isSelected)
+                            MaterialTheme.colorScheme.primary
+                        else
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        modifier = Modifier
+                            .size(26.dp)
+                            .padding(bottom = 4.dp)
+                    )
+
+                    // Indicateur de sélection
+                    if (isSelected) {
+                        Box(
+                            modifier = Modifier
+                                .width(24.dp)
+                                .height(3.dp)
+                                .background(
+                                    MaterialTheme.colorScheme.primary,
+                                    RoundedCornerShape(1.dp)
+                                )
+                        )
+                    }
+                }
+            }
         }
     }
-
 }

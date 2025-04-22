@@ -118,14 +118,13 @@ fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewMod
                         onClick = {
                             navController.navigate(RecipeApp.Add.name)
                         },
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier.padding(10.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE58E30))
                     ) {
                         Text(text = stringResource(R.string.add), color = MaterialTheme.colorScheme.onSecondary)
                     }
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
             }
         }
 
