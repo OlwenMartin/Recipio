@@ -38,6 +38,7 @@ import com.example.recipio.data.Recipe
 import coil.compose.AsyncImage
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.foundation.lazy.rememberLazyListState
 
 @Composable
 fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewModel: RecipeViewModel = viewModel()) {
@@ -154,83 +155,6 @@ fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewMod
 }
 
 @Composable
-fun RecipeChatDialog(
-    onDismiss: () -> Unit,
-    viewModel: RecipeViewModel,
-    chatViewModel: RecipeChatViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
-        factory = RecipeChatViewModelFactory(viewModel)
-    )
-) {
-    val chatState by chatViewModel.chatState.collectAsState()
-    var userInput by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Assistant de recettes") },
-        text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(400.dp)
-            ) {
-                // Afficher les messages du chat
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                ) {
-                    items(chatState.messages) { message ->
-                        ChatMessage(
-                            text = message.text,
-                            isFromUser = message.isFromUser
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                }
-
-                // Zone de saisie du message
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        value = userInput,
-                        onValueChange = { userInput = it },
-                        modifier = Modifier.weight(1f),
-                        placeholder = { Text("Posez une question sur les recettes...") },
-                        singleLine = true
-                    )
-
-                    IconButton(
-                        onClick = {
-                            if (userInput.isNotEmpty()) {
-                                chatViewModel.sendMessage(userInput)
-                                userInput = ""
-                            }
-                        }
-                    ) {
-                        Icon(
-                            Icons.Filled.Send,
-                            contentDescription = "Envoyer"
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE58E30))
-            ) {
-                Text("Fermer")
-            }
-        }
-    )
-}
-
-@Composable
 fun RecipeSection(title: String, navController: NavHostController, recipes : List<Recipe>, viewModel: RecipeViewModel) {
     val recent = stringResource(R.string.recent_recipes)
     val favorites = stringResource(R.string.favorites)
@@ -295,6 +219,120 @@ fun RecipeItem(
             )
         }
     }
+}
+
+@Composable
+fun RecipeChatDialog(
+    onDismiss: () -> Unit,
+    viewModel: RecipeViewModel,
+    chatViewModel: RecipeChatViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+        factory = RecipeChatViewModelFactory(viewModel)
+    )
+) {
+    val chatState by chatViewModel.chatState.collectAsState()
+    var userInput by remember { mutableStateOf("") }
+    val listState = rememberLazyListState()
+
+    // Faire défiler automatiquement jusqu'au dernier message
+    LaunchedEffect(chatState.messages.size) {
+        if (chatState.messages.isNotEmpty()) {
+            listState.animateScrollToItem(chatState.messages.size - 1)
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Assistant de recettes") },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(400.dp)
+            ) {
+                // Afficher les messages du chat
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    state = listState
+                ) {
+                    items(chatState.messages) { message ->
+                        ChatMessage(
+                            text = message.text,
+                            isFromUser = message.isFromUser
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    // Afficher l'indicateur de chargement
+                    if (chatState.isLoading) {
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
+                                horizontalArrangement = Arrangement.Start
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = Color(0xFFE58E30),
+                                    strokeWidth = 2.dp
+                                )
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Text(
+                                    text = "Réflexion en cours...",
+                                    color = Color.Gray,
+                                    fontSize = 14.sp
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Zone de saisie du message
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = userInput,
+                        onValueChange = { userInput = it },
+                        modifier = Modifier.weight(1f),
+                        placeholder = { Text("Posez une question sur les recettes...") },
+                        singleLine = true,
+                        enabled = !chatState.isLoading
+                    )
+
+                    IconButton(
+                        onClick = {
+                            if (userInput.isNotEmpty() && !chatState.isLoading) {
+                                chatViewModel.sendMessage(userInput)
+                                userInput = ""
+                            }
+                        },
+                        enabled = !chatState.isLoading && userInput.isNotEmpty()
+                    ) {
+                        Icon(
+                            Icons.Filled.Send,
+                            contentDescription = "Envoyer",
+                            tint = if (!chatState.isLoading && userInput.isNotEmpty())
+                                Color(0xFFE58E30) else Color.Gray
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE58E30))
+            ) {
+                Text("Fermer")
+            }
+        }
+    )
 }
 
 @Composable

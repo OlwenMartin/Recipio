@@ -66,6 +66,13 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.coil.compose)
+    // Pour les appels réseau à l'API OpenAI
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation ("com.squareup.okhttp3:logging-interceptor:4.9.3")
+    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation ("org.json:json:20210307")
     implementation("com.google.android.gms:play-services-auth:21.3.0")
     implementation("androidx.compose.material:material-icons-extended:<version>")
 
