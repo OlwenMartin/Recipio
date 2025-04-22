@@ -74,16 +74,6 @@ fun RecipeScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = recipe.name,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF88B04B)
-                )
-            }
-
             // Icônes Modifier et Favori
             var favorite by remember { mutableStateOf(recipe.isFavorite) }
             Row {
@@ -101,6 +91,16 @@ fun RecipeScreen(
                         tint = if (recipe.isFavorite) Color.Red else Color.Gray
                     )
                 }
+            }
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = recipe.name,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF88B04B)
+                )
             }
         }
 
