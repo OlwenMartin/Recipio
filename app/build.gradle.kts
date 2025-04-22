@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.generativeai)
     implementation(libs.androidx.datastore.core.android)
     implementation(libs.play.services.nearby)
+    implementation(libs.androidx.datastore.preferences.core.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -66,6 +67,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.coil.compose)
+    implementation ("androidx.datastore:datastore-preferences:1.0.0")
+
     // Pour les appels réseau à l'API OpenAI
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")

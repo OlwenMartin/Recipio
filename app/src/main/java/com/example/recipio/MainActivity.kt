@@ -6,8 +6,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getString
@@ -17,31 +20,62 @@ import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.firestore
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.ViewModelProvider
+import com.example.recipio.services.NotificationService
+import com.example.recipio.viewmodel.SettingsViewModel
 
 
 class MainActivity : ComponentActivity() {
+    private lateinit var settingsViewModel: SettingsViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
+        // Créer le canal de notification
+        NotificationService.createNotificationChannel(this)
+
         WindowCompat.setDecorFitsSystemWindows(window, false)
         FirebaseApp.initializeApp(this)
         enableEdgeToEdge()
         setContent {
-            RecipioTheme {
-                //seedDatabase()
+            val isDarkMode by settingsViewModel.isDarkMode.collectAsState(initial = false)
+
+            RecipioTheme(darkTheme = isDarkMode)  {
                 RecipeApp()
             }
         }
     }
 
     @Composable
-    fun RecipioTheme(content : @Composable () -> Unit){
+    fun RecipioTheme(darkTheme: Boolean = false, content: @Composable () -> Unit) {
+        // Définir deux schémas de couleurs : un pour le mode clair et un pour le mode sombre
+        val lightColors = lightColorScheme(
+            primary = Color(0xFF9bc268),
+            onPrimary = Color.White,
+            secondary = Color(0xFF88B04B),
+            onSecondary = Color.White,
+            background = Color.White,
+            onBackground = Color.Black,
+            surface = Color(0xFFF9F9F9),
+            onSurface = Color.Black
+        )
+
+        val darkColors = darkColorScheme(
+            primary = Color(0xFF9bc268),
+            onPrimary = Color.White,
+            secondary = Color(0xFF88B04B),
+            onSecondary = Color.White,
+            background = Color(0xFF121212),
+            onBackground = Color.White,
+            surface = Color(0xFF1E1E1E),
+            onSurface = Color.White
+        )
+
+        // Appliquer le schéma de couleurs approprié selon le mode
         MaterialTheme(
-            colorScheme = lightColorScheme(
-                primary = Color(0xFF9bc268), // Couleur principale (affecte les boutons)
-                onPrimary = Color.White // Texte sur les boutons
-            ),
+            colorScheme = if (darkTheme) darkColors else lightColors,
             shapes = MaterialTheme.shapes.copy(
-                extraSmall = MaterialTheme.shapes.medium // Personnaliser les coins des boutons
+                extraSmall = MaterialTheme.shapes.medium
             ),
             content = content
         )

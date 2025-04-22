@@ -12,24 +12,39 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.recipio.R
 import com.example.recipio.RecipeApp
+import com.example.recipio.viewmodel.SettingsViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    settingsViewModel: SettingsViewModel = viewModel()
 ) {
     val auth = Firebase.auth
     var showConfirmDialog by remember { mutableStateOf(false) }
     val user = auth.currentUser
 
+    val isDarkMode by settingsViewModel.isDarkMode.collectAsState(initial = false)
+    val areNotificationsEnabled by settingsViewModel.areNotificationsEnabled.collectAsState(initial = true)
+
+    val scope = rememberCoroutineScope()
+
+    // Configurer la couleur de fond en fonction du thème
+    val backgroundColor = if (isDarkMode) Color(0xFF121212) else Color.White
+    val textColor = if (isDarkMode) Color.White else Color.Black
+    val cardColor = if (isDarkMode) Color(0xFF1E1E1E) else Color(0xFFF9F9F9)
+    val titleColor = Color(0xFF88B04B) // Cette couleur reste la même en mode sombre/clair
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(backgroundColor)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -37,7 +52,7 @@ fun SettingsScreen(
             text = stringResource(R.string.settings),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF88B04B),
+            color = titleColor,
             modifier = Modifier.padding(vertical = 24.dp)
         )
 
@@ -49,7 +64,7 @@ fun SettingsScreen(
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFF9F9F9)
+                containerColor = cardColor
             ),
             shape = RoundedCornerShape(12.dp)
         ) {
@@ -60,7 +75,7 @@ fun SettingsScreen(
                     text = stringResource(R.string.user_info),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF88B04B)
+                    color = titleColor
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -70,7 +85,8 @@ fun SettingsScreen(
                         R.string.email_display,
                         user?.email ?: stringResource(R.string.email_not_available)
                     ),
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
+                    color = textColor
                 )
             }
         }
@@ -83,7 +99,7 @@ fun SettingsScreen(
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFF9F9F9)
+                containerColor = cardColor
             ),
             shape = RoundedCornerShape(12.dp)
         ) {
@@ -94,12 +110,12 @@ fun SettingsScreen(
                     text = stringResource(R.string.app_settings),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF88B04B)
+                    color = titleColor
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // À faire
+                // Notifications
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -109,12 +125,17 @@ fun SettingsScreen(
                 ) {
                     Text(
                         text = stringResource(R.string.notifications),
-                        fontSize = 16.sp
+                        fontSize = 16.sp,
+                        color = textColor
                     )
 
                     Switch(
-                        checked = true,
-                        onCheckedChange = {},
+                        checked = areNotificationsEnabled,
+                        onCheckedChange = { enabled ->
+                            scope.launch {
+                                settingsViewModel.setNotificationsEnabled(enabled)
+                            }
+                        },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color(0xFFE58E30),
                             checkedTrackColor = Color(0xFFFFDDB7)
@@ -122,9 +143,12 @@ fun SettingsScreen(
                     )
                 }
 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                Divider(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    color = if (isDarkMode) Color(0xFF3A3A3A) else Color(0xFFE0E0E0)
+                )
 
-                // À faire
+                // Mode sombre
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -134,12 +158,17 @@ fun SettingsScreen(
                 ) {
                     Text(
                         text = stringResource(R.string.dark_mode),
-                        fontSize = 16.sp
+                        fontSize = 16.sp,
+                        color = textColor
                     )
 
                     Switch(
-                        checked = false,
-                        onCheckedChange = {},
+                        checked = isDarkMode,
+                        onCheckedChange = { enabled ->
+                            scope.launch {
+                                settingsViewModel.setDarkMode(enabled)
+                            }
+                        },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color(0xFFE58E30),
                             checkedTrackColor = Color(0xFFFFDDB7)
@@ -171,7 +200,7 @@ fun SettingsScreen(
         }
     }
 
-    // popup de confirmation de déconnexion
+    // Popup de confirmation de déconnexion
     if (showConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showConfirmDialog = false },

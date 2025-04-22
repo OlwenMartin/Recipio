@@ -52,7 +52,7 @@ fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewMod
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(colorResource(id = R.color.white)),
+                .background(MaterialTheme.colorScheme.background),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Column(
@@ -82,7 +82,7 @@ fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewMod
                             text = stringResource(R.string.app_name),
                             fontSize = 33.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.Black
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     }
 
@@ -121,7 +121,7 @@ fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewMod
                         modifier = Modifier.padding(16.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE58E30))
                     ) {
-                        Text(text = stringResource(R.string.add), color = Color.White)
+                        Text(text = stringResource(R.string.add), color = MaterialTheme.colorScheme.onSecondary)
                     }
                 }
 
@@ -140,7 +140,7 @@ fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewMod
             Icon(
                 Icons.Filled.Message,
                 contentDescription = "Assistant recettes",
-                tint = Color.White
+                tint = MaterialTheme.colorScheme.onSecondary
             )
         }
     }

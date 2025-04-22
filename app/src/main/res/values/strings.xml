@@ -61,6 +61,10 @@
     <string name="logout_confirmation_message">Êtes-vous sûr de vouloir vous déconnecter ?</string>
     <string name="confirm">Confirmer</string>
     <string name="cancel">Annuler</string>
+    <string name="notification_channel_name">Rappels quotidiens</string>
+    <string name="notification_channel_description">Rappels quotidiens pour des idées de recettes</string>
+    <string name="notification_title">Que cuisinez-vous aujourd\'hui?</string>
+    <string name="notification_text">Découvrez de nouvelles idées pour votre repas dans l\'app!</string>
 
     <!-- Pour ModifyScreen -->
     <string name="new_recipe">Nouvelle recette</string>
