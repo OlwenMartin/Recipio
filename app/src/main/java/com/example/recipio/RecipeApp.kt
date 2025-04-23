@@ -155,18 +155,19 @@ fun RecipeApp(
                     val key = backStackEntry.arguments?.getString("key") ?: "Name"
                     val value = backStackEntry.arguments?.getString("value") ?: ""
 
-                    viewModel.filterRecipes(key, value)
                     SearchScreen(
-                        uiState = uiState,
-                        navigate = {location -> navController.navigate(location)}
+                        navigate = {location -> navController.navigate(location)},
+                        key,
+                        value
                     )
                 }
 
                 composable(route = RecipeApp.Search.name) {
-                    viewModel.filterRecipes("Name", "")
                     SearchScreen(
-                        uiState = uiState,
-                        navigate = {location -> navController.navigate(location)})
+                        navigate = {location -> navController.navigate(location)},
+                        "Name",
+                        ""
+                    )
                 }
 
                 composable(route = "${RecipeApp.Recipe.name}/{recipeId}") { backStackEntry ->

@@ -40,11 +40,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.recipio.R
 import com.example.recipio.RecipeApp
+import com.example.recipio.data.Recipe
+import com.example.recipio.data.RecipeField
 import com.example.recipio.viewmodel.RecipeViewModel
 
 @Composable
 fun SearchScreen(
     navigate: (String) -> Unit,
+    key : String,
+    value : String,
     viewModel: RecipeViewModel = viewModel()
 ) {
     // État local pour savoir si nous avons déjà essayé de charger les recettes
@@ -55,18 +59,23 @@ fun SearchScreen(
         if (!loadingInitiated) {
             loadingInitiated = true
             viewModel.getRecipes()
+            viewModel.filterRecipes(key, value)
         }
     }
 
     val currentState by viewModel.uiState.collectAsState()
     var searchText by remember { mutableStateOf("") }
 
-    // Liste filtrée selon le texte de recherche
-    val filteredList = if (searchText.isEmpty()) {
-        currentState.filteredRecipes
-    } else {
+
+    var filteredList = currentState.filteredRecipes
+    if(key == "Category" && value != ""){
+        filteredList = currentState.filteredRecipes.filter{it.category.equals(value)}
+    }
+
+    if(!searchText.isEmpty()) {
         currentState.filteredRecipes.filter { it.name.contains(searchText, ignoreCase = true) }
     }
+
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
