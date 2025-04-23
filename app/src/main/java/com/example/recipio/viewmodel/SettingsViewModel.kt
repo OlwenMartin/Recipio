@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val themeManager = ThemeManager(application.applicationContext)
+    private val recipeViewModel: RecipeViewModel = RecipeViewModel()  // Référence au RecipeViewModel
 
     // Flux pour observer les changements de thème et de notifications
     val isDarkMode: Flow<Boolean> = themeManager.isDarkModeFlow
@@ -18,6 +19,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     // Fonction pour changer le mode sombre
     suspend fun setDarkMode(enabled: Boolean) {
         themeManager.setDarkMode(enabled)
+
+        // Recharger les recettes quand le thème change pour assurer la cohérence des données
+        recipeViewModel.getRecipes()
     }
 
     // Fonction pour activer/désactiver les notifications

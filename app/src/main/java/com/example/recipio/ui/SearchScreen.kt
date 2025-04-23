@@ -1,8 +1,7 @@
 package com.example.recipio.ui
-
-import android.util.Log
+import androidx.compose.runtime.collectAsState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,12 +14,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -43,29 +40,32 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.recipio.R
 import com.example.recipio.RecipeApp
-import com.example.recipio.data.Recipe
-import com.example.recipio.data.RecipeField
-import com.example.recipio.data.RecipeUiState
 import com.example.recipio.viewmodel.RecipeViewModel
-import kotlinx.coroutines.flow.update
 
 @Composable
 fun SearchScreen(
-    uiState: RecipeUiState,
     navigate: (String) -> Unit,
     viewModel: RecipeViewModel = viewModel()
 ) {
+    // État local pour savoir si nous avons déjà essayé de charger les recettes
+    var loadingInitiated by remember { mutableStateOf(false) }
+
+    // Charger les recettes une seule fois quand la composition est prête
     LaunchedEffect(Unit) {
-        viewModel.getRecipes()
+        if (!loadingInitiated) {
+            loadingInitiated = true
+            viewModel.getRecipes()
+        }
     }
 
+    val currentState by viewModel.uiState.collectAsState()
     var searchText by remember { mutableStateOf("") }
 
     // Liste filtrée selon le texte de recherche
     val filteredList = if (searchText.isEmpty()) {
-        uiState.filteredRecipes
+        currentState.filteredRecipes
     } else {
-        uiState.filteredRecipes.filter { it.name.contains(searchText, ignoreCase = true) }
+        currentState.filteredRecipes.filter { it.name.contains(searchText, ignoreCase = true) }
     }
 
     Column(
@@ -76,53 +76,62 @@ fun SearchScreen(
             onValueChanged = { searchText = it },
             modifier = Modifier.padding(bottom = 10.dp)
         )
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(top = 30.dp)
-        ) {
-            if(filteredList.isEmpty()) {
-                Text(stringResource(R.string.no_recipe_found))
+
+        if (currentState.recipes.isEmpty() && filteredList.isEmpty()) {
+            // Afficher un indicateur de chargement
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color(0xFF9bc268))
             }
-            for (recipe in filteredList) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp)
-                        .clickable {
-                            navigate("${RecipeApp.Recipe.name}/${recipe.id}")
+        } else {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(top = 30.dp)
+            ) {
+                if (filteredList.isEmpty()) {
+                    Text(stringResource(R.string.no_recipe_found))
+                }
+                for (recipe in filteredList) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp)
+                            .clickable {
+                                navigate("${RecipeApp.Recipe.name}/${recipe.id}")
+                            }
+                    ) {
+                        if (recipe.imageUrl != "") {
+                            AsyncImage(
+                                model = recipe.imageUrl,
+                                contentDescription = "Image chargée depuis une URI",
+                                modifier = Modifier.size(120.dp)
+                            )
+                        } else {
+                            Image(
+                                painter = painterResource(id = R.drawable.default_dish_image),
+                                contentDescription = recipe.name,
+                                modifier = Modifier
+                                    .size(120.dp)
+                                    .clip(RoundedCornerShape(12.dp)),
+                                contentScale = ContentScale.Crop
+                            )
                         }
-                ) {
-                    if (recipe.imageUrl != "") {
-                        AsyncImage(
-                            model = recipe.imageUrl,
-                            contentDescription = "Image chargée depuis une URI",
-                            modifier = Modifier.size(120.dp)
-                        )
-                    } else {
-                        Image(
-                            painter = painterResource(id = R.drawable.default_dish_image),
-                            contentDescription = recipe.name,
-                            modifier = Modifier
-                                .size(120.dp)
-                                .clip(RoundedCornerShape(12.dp)),
-                            contentScale = ContentScale.Crop
-                        )
+                        Spacer(modifier = Modifier.width(20.dp))
+                        Text(text = recipe.name, fontSize = 20.sp)
                     }
-                    Spacer(modifier = Modifier.width(20.dp))
-                    Text(text = recipe.name, fontSize = 20.sp)
                 }
             }
         }
     }
 }
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(
