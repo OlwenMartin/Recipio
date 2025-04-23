@@ -1,32 +1,15 @@
 package com.example.recipio.ui
+
 import androidx.compose.runtime.collectAsState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,21 +23,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.recipio.R
 import com.example.recipio.RecipeApp
-import com.example.recipio.data.Recipe
-import com.example.recipio.data.RecipeField
 import com.example.recipio.viewmodel.RecipeViewModel
 
 @Composable
 fun SearchScreen(
     navigate: (String) -> Unit,
-    key : String,
-    value : String,
+    key: String,
+    value: String,
     viewModel: RecipeViewModel = viewModel()
 ) {
-    // État local pour savoir si nous avons déjà essayé de charger les recettes
     var loadingInitiated by remember { mutableStateOf(false) }
 
-    // Charger les recettes une seule fois quand la composition est prête
     LaunchedEffect(Unit) {
         if (!loadingInitiated) {
             loadingInitiated = true
@@ -66,16 +45,15 @@ fun SearchScreen(
     val currentState by viewModel.uiState.collectAsState()
     var searchText by remember { mutableStateOf("") }
 
-
     var filteredList = currentState.filteredRecipes
-    if(key == "Category" && value != ""){
-        filteredList = currentState.filteredRecipes.filter{it.category.equals(value)}
+
+    if (key == "Category" && value.isNotEmpty()) {
+        filteredList = filteredList.filter { it.category.equals(value, ignoreCase = true) }
     }
 
-    if(!searchText.isEmpty()) {
-        currentState.filteredRecipes.filter { it.name.contains(searchText, ignoreCase = true) }
+    if (searchText.isNotEmpty()) {
+        filteredList = filteredList.filter { it.name.contains(searchText, ignoreCase = true) }
     }
-
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -87,7 +65,6 @@ fun SearchScreen(
         )
 
         if (currentState.recipes.isEmpty() && filteredList.isEmpty()) {
-            // Afficher un indicateur de chargement
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -117,7 +94,7 @@ fun SearchScreen(
                                 navigate("${RecipeApp.Recipe.name}/${recipe.id}")
                             }
                     ) {
-                        if (recipe.imageUrl != "") {
+                        if (recipe.imageUrl.isNotEmpty()) {
                             AsyncImage(
                                 model = recipe.imageUrl,
                                 contentDescription = "Image chargée depuis une URI",
@@ -141,11 +118,12 @@ fun SearchScreen(
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(
-    onValueChanged : (String) -> Unit,
-    modifier : Modifier = Modifier
+    onValueChanged: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var text by remember { mutableStateOf("") }
 
@@ -164,7 +142,8 @@ fun SearchBar(
         shape = RoundedCornerShape(25.dp),
         onValueChange = {
             text = it
-            onValueChanged(it) },
+            onValueChanged(it)
+        },
         label = { Text(stringResource(R.string.search_text)) }
     )
 }
