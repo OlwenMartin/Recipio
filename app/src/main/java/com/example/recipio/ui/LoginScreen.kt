@@ -129,6 +129,10 @@ fun LoginScreen(
                                     contentDescription = stringResource(R.string.email_icon)
                                 )
                             },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Color.Black,
+                                unfocusedTextColor = Color.Black
+                            ),
                             modifier = Modifier.width(300.dp),
                             shape = RoundedCornerShape(10.dp),
                             singleLine = true,
@@ -146,6 +150,10 @@ fun LoginScreen(
                                     contentDescription = stringResource(R.string.password_icon)
                                 )
                             },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Color.Black,
+                                unfocusedTextColor = Color.Black
+                            ),
                             visualTransformation = PasswordVisualTransformation(),
                             modifier = Modifier.width(300.dp),
                             shape = RoundedCornerShape(10.dp),
