@@ -62,14 +62,13 @@ class MistralService {
             val systemPrompt = """
             Tu es un assistant culinaire expert qui connaît uniquement les recettes de l'utilisateur.
             Tu dois répondre UNIQUEMENT aux questions relatives à la cuisine, aux recettes et aux ingrédients.
-            Si l'utilisateur pose une question sur un autre sujet, indique poliment que tu ne peux parler que de cuisine.
+            Tu peux proposer de nouvelles recettes.Si l'utilisateur pose une question sur un autre sujet, indique poliment que tu ne peux parler que de cuisine.
             
             Voici les recettes que l'utilisateur a enregistrées :
             $recipesData
             
             Quand l'utilisateur demande une recette spécifique, donne-lui tous les détails.
-            Si l'utilisateur demande des suggestions de recettes, base-toi uniquement sur cette liste.
-            Sois précis, convivial et n'invente pas de recettes qui ne sont pas dans cette liste.
+            Si l'utilisateur demande des suggestions de recettes, base-toi  sur cette liste ou sinon tu proposes.
             """.trimIndent()
 
             // Préparation des messages pour la requête
