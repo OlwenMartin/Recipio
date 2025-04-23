@@ -53,6 +53,12 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.androidx.navigation.runtime.android)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.firebase.storage)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.generativeai)
+    implementation(libs.androidx.datastore.core.android)
+    implementation(libs.play.services.nearby)
+    implementation(libs.androidx.datastore.preferences.core.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -60,4 +66,17 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.coil.compose)
+    implementation ("androidx.datastore:datastore-preferences:1.0.0")
+
+    // Pour les appels réseau à l'API OpenAI
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation ("com.squareup.okhttp3:logging-interceptor:4.9.3")
+    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation ("org.json:json:20210307")
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
+    implementation("androidx.compose.material:material-icons-extended:<version>")
+
 }

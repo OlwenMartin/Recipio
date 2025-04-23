@@ -1,7 +1,12 @@
 package com.example.recipio.data
 
 data class RecipeUiState (
-    val recipes : List<Recipe> = emptyList(),
+    var recipes : List<Recipe> = emptyList(),
     var selectedRecipe : Recipe = Recipe(),
-    val filteredRecipes : List<Recipe> = emptyList()
+    var filteredRecipes : List<Recipe> = emptyList(),
+    val recentRecipes: List<Recipe> = emptyList(),
+
+    //j'ai ajouté
+    val isLoading: Boolean = false,
+    val error: String? = null
 )
