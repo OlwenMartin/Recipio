@@ -52,6 +52,7 @@ import com.example.recipio.ui.SplashScreen
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.recipio.data.RecipeField
@@ -248,24 +249,29 @@ fun BottomNavigationBar(navController: NavHostController) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Catégories de recettes
-            val categories = listOf("Entrée", "Plat", "Dessert", "Autre")
+            val categories = listOf(
+                stringResource(R.string.category_starter) to "Entrée",
+                stringResource(R.string.category_main) to "Plat",
+                stringResource(R.string.category_dessert) to "Dessert",
+                stringResource(R.string.category_other) to "Autre"
+            )
 
-            categories.forEach { category ->
+            categories.forEach { (displayText, categoryValue) ->
                 val isSelected = currentRoute.toString() == "${RecipeApp.Search.name}/{key}/{value}" &&
                         currentBackStackEntry?.arguments?.getString("key") == RecipeField.Category.toString() &&
-                        currentBackStackEntry?.arguments?.getString("value") == category
+                        currentBackStackEntry?.arguments?.getString("value") == categoryValue
 
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
                         .clickable {
-                            navController.navigate("${RecipeApp.Search.name}/${RecipeField.Category}/${category}")
+                            navController.navigate("${RecipeApp.Search.name}/${RecipeField.Category}/${categoryValue}")
                         }
                         .padding(horizontal = 4.dp)
                 ) {
                     Text(
-                        text = category,
+                        text = displayText,
                         color = if (isSelected)
                             MaterialTheme.colorScheme.primary
                         else
@@ -300,9 +306,9 @@ fun BottomNavigationBar(navController: NavHostController) {
 
             // Icônes de navigation
             val navItems = listOf(
-                Triple(R.drawable.baseline_display_settings_24, "Settings", RecipeApp.Settings.name),
-                Triple(R.drawable.baseline_home_24, "Home", RecipeApp.Home.name),
-                Triple(R.drawable.search_icon, "Search", RecipeApp.Search.name)
+                Triple(R.drawable.baseline_display_settings_24, stringResource(R.string.settings_description), RecipeApp.Settings.name),
+                Triple(R.drawable.baseline_home_24, stringResource(R.string.home_description), RecipeApp.Home.name),
+                Triple(R.drawable.search_icon, stringResource(R.string.search_description), RecipeApp.Search.name)
             )
 
             navItems.forEach { (iconRes, description, route) ->

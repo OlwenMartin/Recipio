@@ -11,10 +11,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
+import com.example.recipio.R
 import com.example.recipio.viewmodel.RecipeViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -30,7 +32,6 @@ fun FavoriteRecipesScreen(
     }
 
     val favoriteRecipes = uiState.recipes.filter { it.isFavorite }
-    println(favoriteRecipes)
 
     Box(
         modifier = Modifier
@@ -43,7 +44,7 @@ fun FavoriteRecipesScreen(
                 .padding(bottom = 80.dp)
         ) {
             Text(
-                text = "Recettes Favories",
+                text = stringResource(R.string.favorite_recipes_title),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -55,7 +56,7 @@ fun FavoriteRecipesScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Aucune recette favorite pour l'instant",
+                        text = stringResource(R.string.no_favorite_recipes),
                         fontSize = 18.sp
                     )
                 }
@@ -83,7 +84,7 @@ fun FavoriteRecipesScreen(
             contentAlignment = Alignment.Center
         ) {
             Button(onClick = { navController.popBackStack() }) {
-                Text("Retour")
+                Text(stringResource(R.string.back_button))
             }
         }
     }

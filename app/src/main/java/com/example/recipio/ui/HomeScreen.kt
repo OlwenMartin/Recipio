@@ -29,7 +29,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
@@ -138,7 +137,7 @@ fun HomeScreen(navController: NavHostController, uiState: RecipeUiState, viewMod
         ) {
             Icon(
                 Icons.Filled.Message,
-                contentDescription = "Assistant recettes",
+                contentDescription = stringResource(R.string.assistant_recipes),
                 tint = MaterialTheme.colorScheme.onSecondary
             )
         }
@@ -241,7 +240,7 @@ fun RecipeChatDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Assistant de recettes") },
+        title = { Text(stringResource(R.string.recipe_assistant)) },
         text = {
             Column(
                 modifier = Modifier
@@ -279,7 +278,7 @@ fun RecipeChatDialog(
                                 )
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Text(
-                                    text = "Réflexion en cours...",
+                                    text = stringResource(R.string.thinking),
                                     color = Color.Gray,
                                     fontSize = 14.sp
                                 )
@@ -299,7 +298,7 @@ fun RecipeChatDialog(
                         value = userInput,
                         onValueChange = { userInput = it },
                         modifier = Modifier.weight(1f),
-                        placeholder = { Text("Posez une question sur les recettes...") },
+                        placeholder = { Text(stringResource(R.string.ask_about_recipes)) },
                         singleLine = true,
                         enabled = !chatState.isLoading
                     )
@@ -315,7 +314,7 @@ fun RecipeChatDialog(
                     ) {
                         Icon(
                             Icons.Filled.Send,
-                            contentDescription = "Envoyer",
+                            contentDescription = stringResource(R.string.send),
                             tint = if (!chatState.isLoading && userInput.isNotEmpty())
                                 Color(0xFFE58E30) else Color.Gray
                         )
@@ -328,7 +327,7 @@ fun RecipeChatDialog(
                 onClick = onDismiss,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE58E30))
             ) {
-                Text("Fermer")
+                Text(stringResource(R.string.close))
             }
         }
     )

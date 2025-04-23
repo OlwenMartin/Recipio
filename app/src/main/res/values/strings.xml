@@ -19,6 +19,7 @@
     <string name="add" translatable="false">Ajouter</string>
     <string name="voir_plus" translatable="false">Voir plus</string>
     <string name="description_uri" translatable="false">Image chargée depuis une URI</string>
+    <string name="down_arrow">Flèche vers le bas</string>
 
     <string name="connexion_reussie" translatable="false">Connexion réussie!</string>
     <string name="echec_connexion" translatable="false">Échec de connexion</string>
@@ -49,6 +50,21 @@
     <string name="already_have_account" translatable="false">Déjà un compte? </string>
     <string name="login_now" translatable="false">Connecte-toi !</string>
 
+    <!-- Pour RecipeScreen -->
+    <string name="modify_button">Modifier</string>
+    <string name="favorite_button">Favori</string>
+    <string name="ingredient_label">Ingrédient</string>
+    <string name="recipe_category">Catégorie : %1$s</string>
+    <string name="preview_recipe_name">Muffins</string>
+    <string name="preview_recipe_description">Des délicieux muffins faciles à préparer</string>
+    <string name="preview_tag1">Dessert</string>
+    <string name="preview_tag2">Facile</string>
+    <string name="preview_step1">Préparer la pâte</string>
+    <string name="preview_step2">Cuire au four</string>
+    <string name="preview_ingredient">Farine</string>
+    <string name="preview_unit">g</string>
+    <string name="preview_notes">Idéal pour le petit-déjeuner</string>
+
     <!-- Pour SettingsScreen -->
     <string name="user_info">Informations utilisateur</string>
     <string name="email_display">Email: %1$s</string>
@@ -65,6 +81,19 @@
     <string name="notification_channel_description">Rappels quotidiens pour des idées de recettes</string>
     <string name="notification_title">Que cuisinez-vous aujourd\'hui?</string>
     <string name="notification_text">Découvrez de nouvelles idées pour votre repas dans l\'app!</string>
+
+    <!-- Pour la navigation par catégorie -->
+    <string name="category_starter">Entrée</string>
+    <string name="category_main">Plat</string>
+    <string name="category_dessert">Dessert</string>
+    <string name="category_other">Autre</string>
+    <string name="settings_description">Paramètres</string>
+    <string name="home_description">Accueil</string>
+    <string name="search_description">Rechercher</string>
+
+    <!-- Pour RecentRecipeScreen -->
+    <string name="recent_recipes_screen_title">Recettes Récentes</string>
+    <string name="no_recent_recipes">Aucune recette récente pour l\'instant</string>
 
     <!-- Pour ModifyScreen -->
     <string name="new_recipe">Nouvelle recette</string>
@@ -104,6 +133,11 @@
     <string name="additional_notes">Notes supplémentaires</string>
     <string name="loaded_image">Image chargée depuis une URI</string>
 
+    <!-- Pour FavoriteRecipeScreen -->
+    <string name="favorite_recipes_title">Recettes Favories</string>
+    <string name="no_favorite_recipes">Aucune recette favorite pour l\'instant</string>
+    <string name="back_button">Retour</string>
+
     <!-- chatbot -->
     <string name="chat_with_assistant" translatable="false">Discuter avec l\'assistant</string>
     <string name="recipe_assistant" translatable="false">Assistant de recettes</string>
@@ -112,4 +146,6 @@
     <string name="ask_about_recipes" translatable="false">Posez une question sur les recettes...</string>
     <string name="no_recipes_available" translatable="false">Aucune recette disponible</string>
     <string name="recipe_question_hint" translatable="false">Comment puis-je vous aider avec vos recettes ?</string>
+    <string name="thinking">Réflexion en cours...</string>
+    <string name="assistant_recipes">Assistant recettes</string>
 </resources>

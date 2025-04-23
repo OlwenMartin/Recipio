@@ -75,7 +75,7 @@ class RecipeChatViewModel(
 
                 // Gérer l'erreur
                 val errorMessage = ChatMessage(
-                    text = "Désolé, je n'ai pas pu traiter votre demande. Veuillez réessayer plus tard.",
+                    text = _chatState.value.errorMessage,
                     isFromUser = false
                 )
 

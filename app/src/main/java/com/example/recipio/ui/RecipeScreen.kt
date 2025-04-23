@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
@@ -78,7 +79,8 @@ fun RecipeScreen(
             var favorite by remember { mutableStateOf(recipe.isFavorite) }
             Row {
                 IconButton(onClick = { onModifyClicked(recipe) }) {
-                    Icon(Icons.Default.Create, contentDescription = "Modify")
+                    Icon(Icons.Default.Create,
+                        contentDescription = stringResource(R.string.modify_button))
                 }
                 IconButton(onClick = {
                     if (recipe.id.isNotEmpty()) {
@@ -87,7 +89,7 @@ fun RecipeScreen(
                 }) {
                     Icon(
                         imageVector = if (recipe.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = "Favori",
+                        contentDescription = stringResource(R.string.favorite_button),
                         tint = if (recipe.isFavorite) Color.Red else Color.Gray
                     )
                 }
@@ -122,14 +124,14 @@ fun RecipeScreen(
                     if(recipe.imageUrl != "") {
                         AsyncImage(
                             model = recipe.imageUrl,
-                            contentDescription = "Image chargée depuis une URI",
+                            contentDescription = stringResource(R.string.loaded_image),
                             modifier = Modifier.size(200.dp)
                         )
                     }
                 }
 
                 //Categorie
-                Text(text = "Categorie : " + recipe.category)
+                Text(stringResource(R.string.recipe_category, recipe.category))
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -137,7 +139,7 @@ fun RecipeScreen(
                 OutlinedTextField(
                     value = recipe.name,
                     onValueChange = { onRecipeChange(recipe.copy(name = it)) },
-                    label = { Text("Nom") },
+                    label = { Text(stringResource(R.string.name)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -147,7 +149,7 @@ fun RecipeScreen(
                 OutlinedTextField(
                     value = recipe.description,
                     onValueChange = { onRecipeChange(recipe.copy(description = it)) },
-                    label = { Text("Description") },
+                    label = { Text(stringResource(R.string.description)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -155,7 +157,7 @@ fun RecipeScreen(
 
                 // Tags
                 Column {
-                    Text("Tags:")
+                    Text(stringResource(R.string.tags))
                     Row {
                         recipe.tags.forEach { tag -> Chip(text = tag) }
                     }
@@ -165,14 +167,14 @@ fun RecipeScreen(
 
                 //Time
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Temps : ")
+                    Text(stringResource(R.string.time))
                     OutlinedTextField(
                         value = recipe.time.toString(),
                         onValueChange = { onRecipeChange(recipe.copy(description = it)) },
-                        label = { Text("Time in minutes") },
+                        label = { Text(stringResource(R.string.time_in_minutes)) },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Text("min")
+                    Text(stringResource(R.string.minutes))
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -181,7 +183,7 @@ fun RecipeScreen(
                 var number by remember { mutableStateOf(recipe.numberOfPeople) }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Pour : ")
+                    Text(stringResource(R.string.for_people))
                     IconButton(onClick = {
                         if (number > 1) {
                             number -= 1
@@ -197,14 +199,14 @@ fun RecipeScreen(
                     }) {
                         Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Augmenter")
                     }
-                    Text(" personnes")
+                    Text(stringResource(R.string.people))
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Ingrédients avec quantités ajustées
                 Column {
-                    Text("Ingrédients :")
+                    Text(stringResource(R.string.ingredients))
 
                     // Ratio de modification des quantités selon le nombre de personnes
                     val ratio = number.toFloat() / recipe.numberOfPeople.toFloat()
@@ -217,7 +219,7 @@ fun RecipeScreen(
                         OutlinedTextField(
                             value = "${ing.name} ${String.format("%.2f", adjustedAmount)} ${ing.unit}",
                             onValueChange = {}, // Aucune modification autorisée
-                            label = { Text("Ingrédient") },
+                            label = { Text(stringResource(R.string.ingredient)) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp)
@@ -229,7 +231,7 @@ fun RecipeScreen(
 
                 // Étapes
                 Column {
-                    Text("Étapes:")
+                    Text(stringResource(R.string.steps))
                     recipe.steps.forEachIndexed { index, step ->
                         OutlinedTextField(
                             value = step,
@@ -250,7 +252,7 @@ fun RecipeScreen(
                 OutlinedTextField(
                     value = recipe.notes,
                     onValueChange = { onRecipeChange(recipe.copy(notes = it)) },
-                    label = { Text("Notes supplémentaires") },
+                    label = { Text(stringResource(R.string.additional_notes)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -277,17 +279,35 @@ fun Chip(text: String) {
 @Preview
 @Composable
 fun RecipeScreenPreview(){
-    val recipe = Recipe(Uri.EMPTY,
-        "",
-        true,
-        "Entrée",
-        "Muffin",
-        "c'est des muffins quoi",
-        listOf("tag1","tag2"),
-        listOf("tu fais la pate","tu met au four"),
-        listOf(Ingredient("ing1",30.0,"g")),
-        4,
-        30,
-        "notes en plus")
+    val previewCategory = stringResource(R.string.category_starter)
+    val previewSteps = listOf(
+        stringResource(R.string.preview_step1),
+        stringResource(R.string.preview_step2)
+    )
+
+    val recipe = Recipe(
+        imageUri = Uri.EMPTY,
+        imageUrl = "",
+        isFavorite = true,
+        category = previewCategory,
+        name = stringResource(R.string.preview_recipe_name),
+        description = stringResource(R.string.preview_recipe_description),
+        tags = listOf(
+            stringResource(R.string.preview_tag1),
+            stringResource(R.string.preview_tag2)
+        ),
+        steps = previewSteps,
+        ingredients = listOf(
+            Ingredient(
+                stringResource(R.string.preview_ingredient),
+                30.0,
+                stringResource(R.string.preview_unit)
+            )
+        ),
+        numberOfPeople = 4,
+        time = 30,
+        notes = stringResource(R.string.preview_notes)
+    )
+
     RecipeScreen(recipe, onRecipeChange = {}, onModifyClicked = {},modifier = Modifier)
 }

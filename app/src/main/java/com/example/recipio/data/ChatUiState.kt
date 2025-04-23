@@ -9,5 +9,7 @@ data class ChatUiState(
         )
     ),
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val errorMessage: String = "Désolé, je n'ai pas pu traiter votre demande. Veuillez réessayer plus tard."
+
 )

@@ -10,10 +10,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
+import com.example.recipio.R
 import com.example.recipio.viewmodel.RecipeViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -26,7 +28,6 @@ fun RecentRecipesScreen(navController: NavHostController, viewModel: RecipeViewM
     }
 
     val recentRecipes = uiState.recentRecipes
-    println(recentRecipes)
 
     Box(
         modifier = Modifier
@@ -39,9 +40,10 @@ fun RecentRecipesScreen(navController: NavHostController, viewModel: RecipeViewM
                 .padding(bottom = 80.dp)
         ) {
             Text(
-                text = "Recettes Récentes",
+                text = stringResource(R.string.recent_recipes_screen_title),
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -51,8 +53,9 @@ fun RecentRecipesScreen(navController: NavHostController, viewModel: RecipeViewM
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Aucune recette récente pour l'instant",
-                        fontSize = 18.sp
+                        text = stringResource(R.string.no_recent_recipes),
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
             } else {
@@ -78,8 +81,16 @@ fun RecentRecipesScreen(navController: NavHostController, viewModel: RecipeViewM
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
-            Button(onClick = { navController.popBackStack() }) {
-                Text("Retour")
+            Button(
+                onClick = { navController.popBackStack() },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.back_button),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
     }
