@@ -157,7 +157,7 @@ fun RecipeApp(
 
                     viewModel.filterRecipes(key, value)
                     SearchScreen(
-                        recipes = uiState.filteredRecipes,
+                        uiState = uiState,
                         navigate = {location -> navController.navigate(location)}
                     )
                 }
@@ -165,7 +165,7 @@ fun RecipeApp(
                 composable(route = RecipeApp.Search.name) {
                     viewModel.filterRecipes("Name", "")
                     SearchScreen(
-                        recipes = uiState.filteredRecipes,
+                        uiState = uiState,
                         navigate = {location -> navController.navigate(location)})
                 }
 

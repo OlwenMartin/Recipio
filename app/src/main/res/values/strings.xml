@@ -148,4 +148,5 @@
     <string name="recipe_question_hint" translatable="false">Comment puis-je vous aider avec vos recettes ?</string>
     <string name="thinking">Réflexion en cours...</string>
     <string name="assistant_recipes">Assistant recettes</string>
+    <string name="no_recipe_found">Aucune recette ne répondant aux critères n\'a été trouvée...</string>
 </resources>

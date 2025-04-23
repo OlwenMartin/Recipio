@@ -1,5 +1,6 @@
 package com.example.recipio.ui
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,20 +45,27 @@ import com.example.recipio.R
 import com.example.recipio.RecipeApp
 import com.example.recipio.data.Recipe
 import com.example.recipio.data.RecipeField
+import com.example.recipio.data.RecipeUiState
+import com.example.recipio.viewmodel.RecipeViewModel
 import kotlinx.coroutines.flow.update
 
 @Composable
 fun SearchScreen(
-    recipes: List<Recipe>,
+    uiState: RecipeUiState,
     navigate: (String) -> Unit,
+    viewModel: RecipeViewModel = viewModel()
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.getRecipes()
+    }
+
     var searchText by remember { mutableStateOf("") }
 
     // Liste filtrée selon le texte de recherche
     val filteredList = if (searchText.isEmpty()) {
-        recipes
+        uiState.filteredRecipes
     } else {
-        recipes.filter { it.name.contains(searchText, ignoreCase = true) }
+        uiState.filteredRecipes.filter { it.name.contains(searchText, ignoreCase = true) }
     }
 
     Column(
@@ -74,6 +83,9 @@ fun SearchScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(top = 30.dp)
         ) {
+            if(filteredList.isEmpty()) {
+                Text(stringResource(R.string.no_recipe_found))
+            }
             for (recipe in filteredList) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
